@@ -7,5 +7,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/Common" />
 <use name="DataFormats/L1Trigger" />
+<use name="DataFormats/L1TMuon" />
 <use name="DataFormats/L1TrackTrigger" />
+<use name="DataFormats/HepMCCandidate" />
 <flags EDM_PLUGIN="1"/>
