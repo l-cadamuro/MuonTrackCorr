@@ -2,7 +2,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 
-fIn = ROOT.TFile.Open('/uscms/home/lcadamur/nobackup/MuonTrackCorr932/CMSSW_9_3_2/src/MuonTrackCorr/MuonTrackCorr/test/TkMuNtuple.root')
+fIn = ROOT.TFile.Open('../test/TkMuNtuple.root')
 tIn = fIn.Get('Ntuplizer/MuonTrackTree')
 
 h_trks = ROOT.TH1D('h_trks', ';#eta;Events', 50, -3, 3)
