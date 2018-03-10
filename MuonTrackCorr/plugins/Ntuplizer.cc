@@ -61,8 +61,15 @@ class Ntuplizer : public edm::EDAnalyzer {
 
         unsigned int n_EMTF_mu_;
         std::vector<float> EMTF_mu_pt_;
+        std::vector<float> EMTF_mu_pt_xml_;
         std::vector<float> EMTF_mu_eta_;
+        std::vector<float> EMTF_mu_theta_;
         std::vector<float> EMTF_mu_phi_;
+        std::vector<int>   EMTF_mu_charge_;
+        std::vector<int>   EMTF_mu_mode_;
+        std::vector<int>   EMTF_mu_endcap_;
+        std::vector<int>   EMTF_mu_sector_;
+        std::vector<int>   EMTF_mu_bx_;
         // std::vector<float> EMTF_mu_e_;
 
         unsigned int n_L1TT_trk_;
@@ -83,8 +90,15 @@ void Ntuplizer::initialize()
 {
     n_EMTF_mu_  = 0;
     EMTF_mu_pt_.clear();
+    EMTF_mu_pt_xml_.clear();
     EMTF_mu_eta_.clear();
+    EMTF_mu_theta_.clear();
     EMTF_mu_phi_.clear();
+    EMTF_mu_charge_.clear();
+    EMTF_mu_mode_.clear();
+    EMTF_mu_endcap_.clear();
+    EMTF_mu_sector_.clear();
+    EMTF_mu_bx_.clear();
 
     n_L1TT_trk_ = 0;
     L1TT_trk_pt_.clear();
@@ -120,8 +134,16 @@ void Ntuplizer::beginJob()
 
     tree_->Branch("n_EMTF_mu", &n_EMTF_mu_);
     tree_->Branch("EMTF_mu_pt", &EMTF_mu_pt_);
+    tree_->Branch("EMTF_mu_pt_xml", &EMTF_mu_pt_xml_);
     tree_->Branch("EMTF_mu_eta", &EMTF_mu_eta_);
+    tree_->Branch("EMTF_mu_theta", &EMTF_mu_theta_);
     tree_->Branch("EMTF_mu_phi", &EMTF_mu_phi_);
+    tree_->Branch("EMTF_mu_charge", &EMTF_mu_charge_);
+    tree_->Branch("EMTF_mu_mode", &EMTF_mu_mode_);
+    tree_->Branch("EMTF_mu_endcap", &EMTF_mu_endcap_);
+    tree_->Branch("EMTF_mu_sector", &EMTF_mu_sector_);
+    tree_->Branch("EMTF_mu_bx", &EMTF_mu_bx_);
+
     // tree_->Branch("EMTF_mu_e", &EMTF_mu_e_);
 
     tree_->Branch("n_L1TT_trk", &n_L1TT_trk_);
@@ -211,11 +233,16 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             continue;
         ++n_EMTF_mu_;
         EMTF_mu_pt_.push_back(l1muit->Pt());
+        EMTF_mu_pt_xml_.push_back(l1muit->Pt_XML());
         EMTF_mu_eta_.push_back(l1muit->Eta());
+        EMTF_mu_theta_.push_back(l1muit->Theta());
         EMTF_mu_phi_.push_back(l1muit->Phi_glob());
+        EMTF_mu_charge_.push_back(l1muit->Charge());
+        EMTF_mu_mode_.push_back(l1muit->Mode());
+        EMTF_mu_endcap_.push_back(l1muit->Endcap());
+        EMTF_mu_sector_.push_back(l1muit->Sector());
+        EMTF_mu_bx_.push_back(l1muit->BX());
         // EMTF_mu_e_.push_back(l1muit->energy());
-
-
     }
 
 
