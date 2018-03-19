@@ -42,3 +42,12 @@ cp -r DataFormats/L1TMuon ../src/DataFormats
 
 Run the compilation. Likely there will be some incompatibilities between the CMSSW DataFormats and the updated ones. To just run to check all errors do ``scram b --keep-going -k 24``, look at the error messages and compile the corresponding offending lines in the code.
 For example, based on tag ``l1t-phase2-v2.2`` you'll need to replace ll. 164 (``if (stub == hit.CSC_LCTDigi()) return true;``) of ``L1Trigger/L1TMuon/src/Phase2/L1TDisplacedMuonStubRecovery.cc`` with ``return true;`` since ``CSC_LCTDigi`` is not defined in the replaced CSC DataFormat.
+
+### Reverting to the PhaseI DIGI
+You can get the PhaseI DIGI sequence by:
+1) generating the particle gun config for the GEN-SIM-DIGI-RECO sequence (cmsDriver.py ... --no_exec) using the ``Run2_2017`` era
+2) open it: ``python -i configfile.py``
+3) dump the process: ``outputFile.write(process.dumpPython())``
+4) search for ``process.simCscTriggerPrimitiveDigis``
+5) add this in the main cfg run with cmsRun to make the ntuples
+
