@@ -51,6 +51,7 @@ class Ntuplizer : public edm::EDAnalyzer {
         // const edm::EDGetTokenT< MuonBxCollection > muTokenPos;
         // const edm::EDGetTokenT< MuonBxCollection > muTokenNeg;
         const edm::EDGetTokenT< EMTFTrackCollection > muToken;
+        const edm::EDGetTokenT< EMTFHitCollection >   mu_hitToken;
         const edm::EDGetTokenT< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
         const edm::EDGetTokenT< std::vector< reco::GenParticle > > genPartToken;
 
@@ -70,7 +71,17 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<int>   EMTF_mu_endcap_;
         std::vector<int>   EMTF_mu_sector_;
         std::vector<int>   EMTF_mu_bx_;
+        std::vector<int>   EMTF_mu_hitref1_;
+        std::vector<int>   EMTF_mu_hitref2_;
+        std::vector<int>   EMTF_mu_hitref3_;
+        std::vector<int>   EMTF_mu_hitref4_;
         // std::vector<float> EMTF_mu_e_;
+
+        // hits of a EMTF track
+        // std::vector<int>   EMTF_mu_h1_type_;
+        // std::vector<int>   EMTF_mu_h2_type_;
+        // std::vector<int>   EMTF_mu_h3_type_;
+        // std::vector<int>   EMTF_mu_h4_type_;
 
         unsigned int n_L1TT_trk_;
         std::vector<float> L1TT_trk_pt_;
@@ -83,6 +94,27 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> gen_mu_eta_;
         std::vector<float> gen_mu_phi_;
         std::vector<float> gen_mu_e_;
+
+        // hits
+        // format taken from : https://github.com/jiafulow/L1TMuonSimulationsMar2017/blob/master/Analyzers/plugins/NtupleMaker.cc
+        unsigned int n_mu_hit_;
+        std::vector<int16_t>  mu_hit_endcap_;
+        std::vector<int16_t>  mu_hit_station_;
+        std::vector<int16_t>  mu_hit_ring_;
+        std::vector<int16_t>  mu_hit_sector_;
+        std::vector<int16_t>  mu_hit_subsector_;
+        std::vector<int16_t>  mu_hit_chamber_;
+        std::vector<int16_t>  mu_hit_cscid_;
+        std::vector<int16_t>  mu_hit_bx_;
+        std::vector<int16_t>  mu_hit_type_;  // subsystem: DT=0,CSC=1,RPC=2,GEM=3
+        std::vector<int16_t>  mu_hit_neighbor_;
+        //
+        std::vector<float  >  mu_hit_sim_phi_;
+        std::vector<float  >  mu_hit_sim_theta_;
+        std::vector<float  >  mu_hit_sim_eta_;
+        // std::vector<float  >  mu_hit_sim_r_; // seems not there in the CMSSW emulator data format
+        // std::vector<float  >  mu_hit_sim_z_; // seems not there in the CMSSW emulator data format
+
 
 };
 
@@ -99,6 +131,10 @@ void Ntuplizer::initialize()
     EMTF_mu_endcap_.clear();
     EMTF_mu_sector_.clear();
     EMTF_mu_bx_.clear();
+    EMTF_mu_hitref1_.clear();
+    EMTF_mu_hitref2_.clear();
+    EMTF_mu_hitref3_.clear();
+    EMTF_mu_hitref4_.clear();
 
     n_L1TT_trk_ = 0;
     L1TT_trk_pt_.clear();
@@ -111,6 +147,23 @@ void Ntuplizer::initialize()
     gen_mu_phi_.clear();
     gen_mu_e_.clear();
 
+    n_mu_hit_ = 0;
+    mu_hit_endcap_.clear();
+    mu_hit_station_.clear();
+    mu_hit_ring_.clear();
+    mu_hit_sector_.clear();
+    mu_hit_subsector_.clear();
+    mu_hit_chamber_.clear();
+    mu_hit_cscid_.clear();
+    mu_hit_bx_.clear();
+    mu_hit_type_.clear();
+    mu_hit_neighbor_.clear();
+    //
+    mu_hit_sim_phi_.clear();
+    mu_hit_sim_theta_.clear();
+    mu_hit_sim_eta_.clear();
+    // mu_hit_sim_r_.clear();
+    // mu_hit_sim_z_.clear();
 
 }
 
@@ -118,6 +171,7 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& iConfig):
     // muTokenPos(consumes< MuonBxCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonPosInputTag"))),
     // muTokenNeg(consumes< MuonBxCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonNegInputTag"))),
     muToken(consumes< EMTFTrackCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonEMTFInputTag"))),
+    mu_hitToken(consumes< EMTFHitCollection >         (iConfig.getParameter<edm::InputTag>("L1EMTFHitInputTag"))),
     trackToken(consumes< L1TTTrackCollectionType >    (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
     genPartToken(consumes< GenParticleCollection >    (iConfig.getParameter<edm::InputTag>("GenParticleInputTag")))
 {
@@ -143,6 +197,10 @@ void Ntuplizer::beginJob()
     tree_->Branch("EMTF_mu_endcap", &EMTF_mu_endcap_);
     tree_->Branch("EMTF_mu_sector", &EMTF_mu_sector_);
     tree_->Branch("EMTF_mu_bx", &EMTF_mu_bx_);
+    tree_->Branch("EMTF_mu_hitref1", &EMTF_mu_hitref1_);
+    tree_->Branch("EMTF_mu_hitref2", &EMTF_mu_hitref2_);
+    tree_->Branch("EMTF_mu_hitref3", &EMTF_mu_hitref3_);
+    tree_->Branch("EMTF_mu_hitref4", &EMTF_mu_hitref4_);
 
     // tree_->Branch("EMTF_mu_e", &EMTF_mu_e_);
 
@@ -164,6 +222,57 @@ void Ntuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
 void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+    // --------- in-place function
+    // from https://github.com/jiafulow/L1TMuonSimulationsMar2017/blob/master/Analyzers/plugins/NtupleMaker.cc#L374
+    auto get_hit_refs = [](const auto& trk, const auto& hits) {
+        using namespace l1t;
+
+        std::vector<int32_t> hit_refs = {-1, -1, -1, -1};
+        EMTFHitCollection::const_iterator conv_hits_it1  = trk.Hits().begin();
+        EMTFHitCollection::const_iterator conv_hits_end1 = trk.Hits().end();
+
+        for (; conv_hits_it1 != conv_hits_end1; ++conv_hits_it1) {
+          EMTFHitCollection::const_iterator conv_hits_it2  = hits.begin();
+          EMTFHitCollection::const_iterator conv_hits_end2 = hits.end();
+
+          for (; conv_hits_it2 != conv_hits_end2; ++conv_hits_it2) {
+            const EMTFHit& conv_hit_i = *conv_hits_it1;
+            const EMTFHit& conv_hit_j = *conv_hits_it2;
+
+            // See L1Trigger/L1TMuonEndCap/src/PrimitiveMatching.cc
+            // All these must match: [bx_history][station][chamber][segment]
+            if (
+              (conv_hit_i.Subsystem()  == conv_hit_j.Subsystem()) &&
+              (conv_hit_i.PC_station() == conv_hit_j.PC_station()) &&
+              (conv_hit_i.PC_chamber() == conv_hit_j.PC_chamber()) &&
+              (conv_hit_i.Ring()       == conv_hit_j.Ring()) &&  // because of ME1/1
+              (conv_hit_i.Strip()      == conv_hit_j.Strip()) &&
+              (conv_hit_i.Wire()       == conv_hit_j.Wire()) &&
+              (conv_hit_i.Pattern()    == conv_hit_j.Pattern()) &&
+              (conv_hit_i.BX()         == conv_hit_j.BX()) &&
+              (conv_hit_i.Strip_low()  == conv_hit_j.Strip_low()) && // For RPC clusters
+              (conv_hit_i.Strip_hi()   == conv_hit_j.Strip_hi()) &&  // For RPC clusters
+              (conv_hit_i.Roll()       == conv_hit_j.Roll()) &&
+              true
+            ) {
+              int istation = (conv_hit_i.Station() - 1);
+              auto hit_ref = std::distance(hits.begin(), conv_hits_it2);
+              hit_refs.at(istation) = hit_ref;
+            }  // end if
+          }  // end loop over hits
+        }  // end loop over trk.Hits()
+
+        // Sanity check
+        for (int istation = 0; istation < 4; ++istation) {
+          bool has_hit = trk.Mode() & (1 << (3 - istation));
+          assert(has_hit == (hit_refs.at(istation) != -1));
+        }
+
+        return hit_refs;
+      };
+
+    // --------------------------------------------------------------
+
     initialize();
 
     // // the L1Muons objects - plus side
@@ -180,6 +289,10 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<EMTFTrackCollection> l1musH;
     iEvent.getByToken(muToken, l1musH);  
     const EMTFTrackCollection& l1mus = (*l1musH.product());
+
+    edm::Handle<EMTFHitCollection> l1muhitsH;
+    iEvent.getByToken(mu_hitToken, l1muhitsH);  
+    const EMTFHitCollection& l1muhits = (*l1muhitsH.product());
 
     // the L1Tracks
     edm::Handle<L1TTTrackCollectionType> l1tksH;
@@ -229,6 +342,9 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     for (auto l1muit = l1mus.begin(); l1muit != l1mus.end(); ++l1muit)
     {
+        const auto& hit_refs = get_hit_refs(*l1muit, l1muhits);
+        assert(hit_refs.size() == 4); // sanity check
+
         if (l1muit->BX() != 0)
             continue;
         ++n_EMTF_mu_;
@@ -243,8 +359,35 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         EMTF_mu_sector_.push_back(l1muit->Sector());
         EMTF_mu_bx_.push_back(l1muit->BX());
         // EMTF_mu_e_.push_back(l1muit->energy());
+        EMTF_mu_hitref1_.push_back(hit_refs.at(0));
+        EMTF_mu_hitref2_.push_back(hit_refs.at(1));
+        EMTF_mu_hitref3_.push_back(hit_refs.at(2));
+        EMTF_mu_hitref4_.push_back(hit_refs.at(3));
+
+        // if (l1mus.size() > 4)
+        // cout << "Number of hits in this track " << l1muit->Hits().size() << "  -- trk qual " << l1muit->Mode() << endl;
     }
 
+    /// hits
+    for (const auto& hit : l1muhits)
+    {
+        mu_hit_endcap_     . push_back(hit.Endcap());
+        mu_hit_station_    . push_back(hit.Station());
+        mu_hit_ring_       . push_back(hit.Ring());
+        mu_hit_sector_     . push_back(hit.PC_sector());
+        mu_hit_subsector_  . push_back(hit.Subsector());
+        mu_hit_chamber_    . push_back(hit.Chamber());
+        mu_hit_cscid_      . push_back(hit.CSC_ID());
+        mu_hit_bx_         . push_back(hit.BX());
+        mu_hit_type_       . push_back(hit.Subsystem());
+        mu_hit_neighbor_   . push_back(hit.Neighbor());
+        //
+        mu_hit_sim_phi_    . push_back(hit.Phi_sim());
+        mu_hit_sim_theta_  . push_back(hit.Theta_sim());
+        mu_hit_sim_eta_    . push_back(hit.Eta_sim());
+        // mu_hit_sim_r_      . push_back(hit.Rho_sim());
+        // mu_hit_sim_z_      . push_back(hit.Z_sim());
+    }
 
     tree_->Fill();
 }
@@ -254,6 +397,7 @@ void Ntuplizer::endJob()
 
 void Ntuplizer::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {}
+
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 DEFINE_FWK_MODULE(Ntuplizer);
