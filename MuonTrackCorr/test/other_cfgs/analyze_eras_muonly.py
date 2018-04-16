@@ -35,7 +35,7 @@ process.maxEvents = cms.untracked.PSet(
 ###### cmd line opts for batch
 options = VarParsing.VarParsing ('analysis')
 options.inputFiles = []
-options.outputFile = 'TkMuNtuple.root'
+options.outputFile = 'TkMuNtuple_eras_muonly_bugfix.root'
 options.parseArguments()
 
 if options.inputFiles:
