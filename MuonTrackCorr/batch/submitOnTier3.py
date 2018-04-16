@@ -82,7 +82,7 @@ tarLFN       = cmsswWorkDir + '/' + tarName
 # cmsRunExec   = 'ntuplizer.py' # python to run
 
 cmsRunInto   = 'MuonTrackCorr/MuonTrackCorr/test' # where to run cmsRun, relative from CMSSW/src
-cmsRunExec   = 'analyze_eras_muonly.py' # python to run
+cmsRunExec   = 'analyze_eras_muonly_EMTFdigionly.py' # python to run
 
 
 ##############################
@@ -97,6 +97,7 @@ if args.tar:
     toExclude = [
         '{0}/src/.git'.format(cmssw_version),
         '{0}/src/MuonTrackCorr/MuonTrackCorr/batch'.format(cmssw_version),
+        '{0}/src/MuonTrackCorr/MuonTrackCorr/analysis'.format(cmssw_version),
         '{0}/src/MuonTrackCorr/MuonTrackCorr/test/*.root'.format(cmssw_version),
      ]
 
