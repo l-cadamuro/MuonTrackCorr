@@ -88,6 +88,7 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> L1TT_trk_eta_;
         std::vector<float> L1TT_trk_phi_;
         // std::vector<float> L1TT_trk_e_;
+        // std::vector<int> L1TT_trk_charge_;
 
         unsigned int n_gen_mu_;
         std::vector<float> gen_mu_pt_;
@@ -141,6 +142,7 @@ void Ntuplizer::initialize()
     L1TT_trk_pt_.clear();
     L1TT_trk_eta_.clear();
     L1TT_trk_phi_.clear();
+    // L1TT_trk_charge_.clear();
 
     n_gen_mu_   = 0;
     gen_mu_pt_.clear();
@@ -211,6 +213,7 @@ void Ntuplizer::beginJob()
     tree_->Branch("L1TT_trk_eta", &L1TT_trk_eta_);
     tree_->Branch("L1TT_trk_phi", &L1TT_trk_phi_);
     // tree_->Branch("L1TT_trk_e", &L1TT_trk_e_);
+    // tree_->Branch("L1TT_trk_charge", &L1TT_trk_charge_);
 
     tree_->Branch("n_gen_mu", &n_gen_mu_);
     tree_->Branch("gen_mu_pt", &gen_mu_pt_);
@@ -350,6 +353,7 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         L1TT_trk_pt_.push_back(l1trkit->getMomentum(nTrkPars).perp());
         L1TT_trk_eta_.push_back(l1trkit->getMomentum(nTrkPars).eta());
         L1TT_trk_phi_.push_back(l1trkit->getMomentum(nTrkPars).phi());
+        // L1TT_trk_charge_.push_back(l1trkit->getMomentum(nTrkPars).charge());
         // L1TT_trk_e_.push_back(l1trkit->energy());
     }
 
