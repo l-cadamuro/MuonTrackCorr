@@ -1,4 +1,4 @@
-SUFFIX_TAG="18Apr_hitinfo_fix"
+SUFFIX_TAG="23Apr"
 
 echo "... preparing the submission (tar and copy of CMSSW)"
 python submitOnTier3.py --xrdcp-tar-only
