@@ -368,16 +368,6 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         const auto& hit_refs = get_hit_refs(*l1muit, l1muhits);
         assert(hit_refs.size() == 4); // sanity check
 
-        // debug
-        int iref = hit_refs.at(1); // S2
-        if (iref > 0)
-        {
-            double eta_emtf = l1muit->Eta();
-            double eta_S2   = l1muhits.at(iref).Eta_sim();
-            if (eta_emtf * eta_S2 < 0)
-                cout << "AAAAAAA - etmf : " << eta_emtf << " " << eta_S2 << endl;
-        }
-
         if (l1muit->BX() != 0)
             continue;
         ++n_EMTF_mu_;
