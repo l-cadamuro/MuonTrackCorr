@@ -39,14 +39,14 @@ class MuTkTree {
         TTreeReaderArray<float> L1TT_trk_pt     = {mtktread, "L1TT_trk_pt"};
         TTreeReaderArray<float> L1TT_trk_eta    = {mtktread, "L1TT_trk_eta"};
         TTreeReaderArray<float> L1TT_trk_phi    = {mtktread, "L1TT_trk_phi"};
-        TTreeReaderArray<int>   L1TT_trk_charge = {mtktread, "L1TT_trk_charge"};
+        // TTreeReaderArray<int>   L1TT_trk_charge = {mtktread, "L1TT_trk_charge"};
 
         TTreeReaderValue<UInt_t> n_gen_mu      = {mtktread, "n_gen_mu"};
         TTreeReaderArray<float> gen_mu_pt      = {mtktread, "gen_mu_pt"};
         TTreeReaderArray<float> gen_mu_eta     = {mtktread, "gen_mu_eta"};
         TTreeReaderArray<float> gen_mu_phi     = {mtktread, "gen_mu_phi"};
         TTreeReaderArray<float> gen_mu_e       = {mtktread, "gen_mu_e"};
-        // TTreeReaderArray<int> gen_mu_charge    = {mtktread, "gen_mu_charge"};
+        TTreeReaderArray<int> gen_mu_charge    = {mtktread, "gen_mu_charge"};
 
         TTreeReaderValue<UInt_t> n_mu_hit        = {mtktread, "n_mu_hit"};
         TTreeReaderArray<short> mu_hit_endcap    = {mtktread, "mu_hit_endcap"};
