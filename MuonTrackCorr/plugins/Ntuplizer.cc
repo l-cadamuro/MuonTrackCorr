@@ -278,6 +278,7 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               (conv_hit_i.Strip_hi()   == conv_hit_j.Strip_hi()) &&  // For RPC clusters
               (conv_hit_i.Roll()       == conv_hit_j.Roll()) &&
               (conv_hit_i.Endcap()     == conv_hit_j.Endcap()) &&
+              (conv_hit_i.Sector()     == conv_hit_j.Sector()) &&
               true
             ) {
               int istation = (conv_hit_i.Station() - 1);
