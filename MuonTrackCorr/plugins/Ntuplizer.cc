@@ -94,6 +94,7 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> gen_mu_eta_;
         std::vector<float> gen_mu_phi_;
         std::vector<float> gen_mu_e_;
+        std::vector<int>   gen_mu_charge_;
 
         // hits
         // format taken from : https://github.com/jiafulow/L1TMuonSimulationsMar2017/blob/master/Analyzers/plugins/NtupleMaker.cc
@@ -146,6 +147,7 @@ void Ntuplizer::initialize()
     gen_mu_eta_.clear();
     gen_mu_phi_.clear();
     gen_mu_e_.clear();
+    gen_mu_charge_.clear();
 
     n_mu_hit_ = 0;
     mu_hit_endcap_.clear();
@@ -215,6 +217,25 @@ void Ntuplizer::beginJob()
     tree_->Branch("gen_mu_eta", &gen_mu_eta_);
     tree_->Branch("gen_mu_phi", &gen_mu_phi_);
     tree_->Branch("gen_mu_e", &gen_mu_e_);
+    tree_->Branch("gen_mu_charge", &gen_mu_charge_);
+
+    // hit info
+    tree_->Branch("n_mu_hit", &n_mu_hit_);
+    tree_->Branch("mu_hit_endcap", &mu_hit_endcap_);
+    tree_->Branch("mu_hit_station", &mu_hit_station_);
+    tree_->Branch("mu_hit_ring", &mu_hit_ring_);
+    tree_->Branch("mu_hit_sector", &mu_hit_sector_);
+    tree_->Branch("mu_hit_subsector", &mu_hit_subsector_);
+    tree_->Branch("mu_hit_chamber", &mu_hit_chamber_);
+    tree_->Branch("mu_hit_cscid", &mu_hit_cscid_);
+    tree_->Branch("mu_hit_bx", &mu_hit_bx_);
+    tree_->Branch("mu_hit_type", &mu_hit_type_);
+    tree_->Branch("mu_hit_neighbor", &mu_hit_neighbor_);
+    //
+    tree_->Branch("mu_hit_sim_phi", &mu_hit_sim_phi_);
+    tree_->Branch("mu_hit_sim_theta", &mu_hit_sim_theta_);
+    tree_->Branch("mu_hit_sim_eta", &mu_hit_sim_eta_);
+
 }
 
 void Ntuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
@@ -253,6 +274,7 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
               (conv_hit_i.Strip_low()  == conv_hit_j.Strip_low()) && // For RPC clusters
               (conv_hit_i.Strip_hi()   == conv_hit_j.Strip_hi()) &&  // For RPC clusters
               (conv_hit_i.Roll()       == conv_hit_j.Roll()) &&
+              (conv_hit_i.Endcap()     == conv_hit_j.Endcap()) &&
               true
             ) {
               int istation = (conv_hit_i.Station() - 1);
@@ -315,6 +337,7 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         gen_mu_eta_.push_back(genpartit->eta());
         gen_mu_phi_.push_back(genpartit->phi());
         gen_mu_e_.push_back(genpartit->energy());
+        gen_mu_charge_.push_back(genpartit->charge());
         // cout << genpartit->status() << endl;
         // the single mu sample has 2 muons, back-to-back
 
@@ -345,6 +368,16 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         const auto& hit_refs = get_hit_refs(*l1muit, l1muhits);
         assert(hit_refs.size() == 4); // sanity check
 
+        // debug
+        int iref = hit_refs.at(1); // S2
+        if (iref > 0)
+        {
+            double eta_emtf = l1muit->Eta();
+            double eta_S2   = l1muhits.at(iref).Eta_sim();
+            if (eta_emtf * eta_S2 < 0)
+                cout << "AAAAAAA - etmf : " << eta_emtf << " " << eta_S2 << endl;
+        }
+
         if (l1muit->BX() != 0)
             continue;
         ++n_EMTF_mu_;
@@ -371,6 +404,7 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     /// hits
     for (const auto& hit : l1muhits)
     {
+        ++n_mu_hit_;
         mu_hit_endcap_     . push_back(hit.Endcap());
         mu_hit_station_    . push_back(hit.Station());
         mu_hit_ring_       . push_back(hit.Ring());
