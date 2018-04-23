@@ -23,27 +23,38 @@ def to_mpi_pi (x):
     while (x < -np.pi): x += 2.*np.pi;
     return x
 
-fIn = ROOT.TFile.Open('plots_JFsynch_pt20_eta1p2_2p4_scaledPt_tree.root')
+fIn = ROOT.TFile.Open('matched_tree_MuMu_flatPt_0PU_23Apr2018.root')
 tIn = fIn.Get('tree')
 nevents = tIn.GetEntries()
 print "Tree has", nevents, "events"
 # nevents = 10000
 
 # can parse epression in the usual ROOT style
+## the second entry of the dataformat, if valid, means that the type must be converted from 'double'
 data_format = (
-    ('gen_pt'           , 'double'),
-    ('abs(gen_eta)'     , 'double'),
-    ('abs(gen_theta)'   , 'double'),
-    ('gen_phi'          , 'double'),
-    ('trk_pt'           , 'double'),
-    ('abs(trk_eta)'     , 'double'),
-    ('abs(trk_theta)'   , 'double'),
-    ('trk_phi'          , 'double'),
-    ('emtf_pt'          , 'double'),
-    ('emtf_xml_pt'      , 'double'),
-    ('abs(emtf_eta)'    , 'double'),
-    ('abs(emtf_theta)'  , 'double'),
-    ('emtf_phi'         , 'double'),
+    ('gen_pt'           , None),
+    ('abs(gen_eta)'     , None),
+    ('abs(gen_theta)'   , None),
+    ('gen_phi'          , None),
+    ('gen_charge'       , int),
+    ##
+    ('trk_pt'           , None),
+    ('abs(trk_eta)'     , None),
+    ('abs(trk_theta)'   , None),
+    ('trk_phi'          , None),
+    ##
+    ('emtf_pt'          , None),
+    ('emtf_xml_pt'      , None),
+    ('abs(emtf_eta)'    , None),
+    ('abs(emtf_theta)'  , None),
+    ('emtf_phi'         , None),
+    ('emtf_charge'      , int),
+    ##
+    ('has_S1'           , bool),
+    ('S1_type'          , int),
+    ('S1_phi'           , None),
+    ('S1_eta'           , None),
+    ('S1_theta'         , None),
 )
 
 print "... going to fetch data from tree"
@@ -55,7 +66,7 @@ for idx, df in enumerate(data_format):
     print '... reading data in', df[0]
     tIn.Draw(df[0],"","goff",nevents,0)
     temp=tIn.GetV1()
-    data_buf[idx]=copy.deepcopy(scipy.frombuffer(buffer=temp,dtype=df[1],count=nevents))
+    data_buf[idx]=copy.deepcopy(scipy.frombuffer(buffer=temp,dtype='double',count=nevents))
 
 data = np.asarray(data_buf)
 dataframe = pd.DataFrame(data, index=[x[0] for x in data_format])
@@ -72,6 +83,12 @@ dataframe = dataframe.transpose()
 print "... dataset transposed"
 print dataframe
 print dataframe.shape
+
+for name, ttype in data_format:
+    if ttype:
+        print name , " double --> ", ttype
+        dataframe[name] = dataframe[name].astype(ttype)
+print ".. types adjusted"
 
 print "... dataset modified"
 good_emtf = dataframe['emtf_pt'] > 0
@@ -261,34 +278,34 @@ c1.SetBottomMargin(0.15)
 c1.SetLogz()
 
 h_nev.Draw('colz')
-c1.Print('h_nev.pdf', 'pdf')
+c1.Print('matching_plots/h_nev.pdf', 'pdf')
 
 h_dphi_l.Draw('colz')
-c1.Print('h_dphi_l.pdf', 'pdf')
+c1.Print('matching_plots/h_dphi_l.pdf', 'pdf')
 
 h_dtheta_l.Draw('colz')
-c1.Print('h_dtheta_l.pdf', 'pdf')
+c1.Print('matching_plots/h_dtheta_l.pdf', 'pdf')
 
 h_dR_l.Draw('colz')
-c1.Print('h_dR_l.pdf', 'pdf')
+c1.Print('matching_plots/h_dR_l.pdf', 'pdf')
 
 h_dphi_h.Draw('colz')
-c1.Print('h_dphi_h.pdf', 'pdf')
+c1.Print('matching_plots/h_dphi_h.pdf', 'pdf')
 
 h_dtheta_h.Draw('colz')
-c1.Print('h_dtheta_h.pdf', 'pdf')
+c1.Print('matching_plots/h_dtheta_h.pdf', 'pdf')
 
 h_dR_h.Draw('colz')
-c1.Print('h_dR_h.pdf', 'pdf')
+c1.Print('matching_plots/h_dR_h.pdf', 'pdf')
 
 h_dphi_delta.Draw('colz')
-c1.Print('h_dphi_delta.pdf', 'pdf')
+c1.Print('matching_plots/h_dphi_delta.pdf', 'pdf')
 
 h_dtheta_delta.Draw('colz')
-c1.Print('h_dtheta_delta.pdf', 'pdf')
+c1.Print('matching_plots/h_dtheta_delta.pdf', 'pdf')
 
 h_dR_delta.Draw('colz')
-c1.Print('h_dR_delta.pdf', 'pdf')
+c1.Print('matching_plots/h_dR_delta.pdf', 'pdf')
 
 
 
