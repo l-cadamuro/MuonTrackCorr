@@ -18,10 +18,10 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenStatusFlags.h"
 
-// #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
-// #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
-
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
 
 #include "TTree.h"
 
@@ -54,8 +54,13 @@ class Ntuplizer : public edm::EDAnalyzer {
         const edm::EDGetTokenT< EMTFHitCollection >   mu_hitToken;
         const edm::EDGetTokenT< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
         const edm::EDGetTokenT< std::vector< reco::GenParticle > > genPartToken;
+        const edm::EDGetTokenT< L1TkMuonParticleCollection > tkMuToken;
 
         const static int nTrkPars = 4; // number of parameters in the trk fit -- eventually to be made configurable
+
+        //
+        bool save_all_trks_;
+        //
 
         //-----output---
         TTree *tree_;
@@ -87,8 +92,14 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> L1TT_trk_pt_;
         std::vector<float> L1TT_trk_eta_;
         std::vector<float> L1TT_trk_phi_;
-        // std::vector<float> L1TT_trk_e_;
-        // std::vector<int> L1TT_trk_charge_;
+        std::vector<int> L1TT_trk_charge_;
+
+        unsigned int n_L1_TkMu_;
+        std::vector<float> L1_TkMu_pt_;
+        std::vector<float> L1_TkMu_eta_;
+        std::vector<float> L1_TkMu_phi_;
+        // std::vector<float> L1_TkMu_e_;
+        // std::vector<int> L1_TkMu_charge_;
 
         unsigned int n_gen_mu_;
         std::vector<float> gen_mu_pt_;
@@ -116,8 +127,6 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float  >  mu_hit_sim_eta_;
         // std::vector<float  >  mu_hit_sim_r_; // seems not there in the CMSSW emulator data format
         // std::vector<float  >  mu_hit_sim_z_; // seems not there in the CMSSW emulator data format
-
-
 };
 
 void Ntuplizer::initialize()
@@ -142,7 +151,13 @@ void Ntuplizer::initialize()
     L1TT_trk_pt_.clear();
     L1TT_trk_eta_.clear();
     L1TT_trk_phi_.clear();
-    // L1TT_trk_charge_.clear();
+    L1TT_trk_charge_.clear();
+
+    n_L1_TkMu_ = 0;
+    L1_TkMu_pt_.clear();
+    L1_TkMu_eta_.clear();
+    L1_TkMu_phi_.clear();
+    // L1_TkMu_charge_.clear();
 
     n_gen_mu_   = 0;
     gen_mu_pt_.clear();
@@ -174,11 +189,13 @@ void Ntuplizer::initialize()
 Ntuplizer::Ntuplizer(const edm::ParameterSet& iConfig):
     // muTokenPos(consumes< MuonBxCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonPosInputTag"))),
     // muTokenNeg(consumes< MuonBxCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonNegInputTag"))),
-    muToken(consumes< EMTFTrackCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonEMTFInputTag"))),
-    mu_hitToken(consumes< EMTFHitCollection >         (iConfig.getParameter<edm::InputTag>("L1EMTFHitInputTag"))),
-    trackToken(consumes< L1TTTrackCollectionType >    (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-    genPartToken(consumes< GenParticleCollection >    (iConfig.getParameter<edm::InputTag>("GenParticleInputTag")))
+    muToken      (consumes< EMTFTrackCollection >         (iConfig.getParameter<edm::InputTag>("L1MuonEMTFInputTag"))),
+    mu_hitToken  (consumes< EMTFHitCollection >           (iConfig.getParameter<edm::InputTag>("L1EMTFHitInputTag"))),
+    trackToken   (consumes< L1TTTrackCollectionType >     (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+    genPartToken (consumes< GenParticleCollection >       (iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
+    tkMuToken    (consumes< L1TkMuonParticleCollection >  (iConfig.getParameter<edm::InputTag>("TkMuInputTag")))
 {
+    save_all_trks_ =  iConfig.getParameter<bool>("save_all_L1TTT");
     initialize();
 }
 
@@ -212,8 +229,13 @@ void Ntuplizer::beginJob()
     tree_->Branch("L1TT_trk_pt", &L1TT_trk_pt_);
     tree_->Branch("L1TT_trk_eta", &L1TT_trk_eta_);
     tree_->Branch("L1TT_trk_phi", &L1TT_trk_phi_);
-    // tree_->Branch("L1TT_trk_e", &L1TT_trk_e_);
-    // tree_->Branch("L1TT_trk_charge", &L1TT_trk_charge_);
+    tree_->Branch("L1TT_trk_charge", &L1TT_trk_charge_);
+
+    //
+    tree_->Branch("n_L1_TkMu", &n_L1_TkMu_);
+    tree_->Branch("L1_TkMu_pt", &L1_TkMu_pt_);
+    tree_->Branch("L1_TkMu_eta", &L1_TkMu_eta_);
+    tree_->Branch("L1_TkMu_phi", &L1_TkMu_phi_);
 
     tree_->Branch("n_gen_mu", &n_gen_mu_);
     tree_->Branch("gen_mu_pt", &gen_mu_pt_);
@@ -330,12 +352,23 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(genPartToken, genpartH);
     const GenParticleCollection& genparts = (*genpartH.product());
 
+    // the mu+trk objects
+    edm::Handle<L1TkMuonParticleCollection> tkmuH;
+    iEvent.getByToken(tkMuToken, tkmuH);
+    const L1TkMuonParticleCollection& tkmus = (*tkmuH.product());
+
     // ------------------------------------------------------
 
     for (auto genpartit = genparts.begin(); genpartit != genparts.end(); ++genpartit)
     {
         if (abs(genpartit->pdgId()) != 13)
             continue;
+
+        // keep only hard scatter stuff (processing Z->mumu)
+        if (!genpartit->statusFlags().isPrompt())      continue;
+        // if (!genpartit->statusFlags().isHardProcess()) continue; // do not apply this (missing muons in Z->mumu)
+        if (!genpartit->statusFlags().isLastCopy())    continue;
+
         ++n_gen_mu_;
         gen_mu_pt_.push_back(genpartit->pt());
         gen_mu_eta_.push_back(genpartit->eta());
@@ -351,11 +384,25 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (auto l1trkit = l1tks.begin(); l1trkit != l1tks.end(); ++l1trkit)
     {
         ++n_L1TT_trk_;
-        L1TT_trk_pt_.push_back(l1trkit->getMomentum(nTrkPars).perp());
-        L1TT_trk_eta_.push_back(l1trkit->getMomentum(nTrkPars).eta());
-        L1TT_trk_phi_.push_back(l1trkit->getMomentum(nTrkPars).phi());
-        // L1TT_trk_charge_.push_back(l1trkit->getMomentum(nTrkPars).charge());
-        // L1TT_trk_e_.push_back(l1trkit->energy());
+        if (save_all_trks_) // keep the branch structure but do not fill vectors
+        {
+            L1TT_trk_pt_.push_back(l1trkit->getMomentum(nTrkPars).perp());
+            L1TT_trk_eta_.push_back(l1trkit->getMomentum(nTrkPars).eta());
+            L1TT_trk_phi_.push_back(l1trkit->getMomentum(nTrkPars).phi());
+            int l1tttq = (l1trkit->getRInv(nTrkPars) > 0 ? 1 : -1);
+            L1TT_trk_charge_.push_back(l1tttq);
+        }
+        /*
+        // check to access components info
+        auto stubRefs = l1trkit->getStubRefs();
+        cout << "N stub refs " << stubRefs.size() << endl;
+        for (unsigned int isr = 0; isr < stubRefs.size(); ++isr)
+        {
+            auto& stub = *(stubRefs.at(isr));
+            cout << " - " << isr << " " << stub.getTriggerDisplacement() << endl;
+        }
+        */
+
     }
 
     // for (auto l1muit = l1musPos.begin(0); l1muit != l1musPos.end(0); ++l1muit)
@@ -394,6 +441,16 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         // if (l1mus.size() > 4)
         // cout << "Number of hits in this track " << l1muit->Hits().size() << "  -- trk qual " << l1muit->Mode() << endl;
+    }
+
+    /// mu + trks
+    // cout << "--- this event has " << tkmus.size() << " muons" << endl;
+    for (const auto& tkmu : tkmus)
+    {
+        ++n_L1_TkMu_;
+        L1_TkMu_pt_  . push_back(tkmu.pt());
+        L1_TkMu_eta_ . push_back(tkmu.eta());
+        L1_TkMu_phi_ . push_back(tkmu.phi());
     }
 
     /// hits
