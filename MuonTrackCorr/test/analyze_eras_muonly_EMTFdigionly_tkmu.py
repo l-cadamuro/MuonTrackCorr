@@ -38,7 +38,16 @@ process.maxEvents = cms.untracked.PSet(
 options = VarParsing.VarParsing ('analysis')
 options.inputFiles = []
 options.outputFile = 'TkMuNtuple_eras_muonly_wtkmus.root'
+options.register ('promptMuOnly',
+                  1, # default value
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "Save only prompt mu (0 for false, 1 for true)")
 options.parseArguments()
+
+promptMuOnly = False if options.promptMuOnly == 0 else True
+print "... saving only prompt muons? ", promptMuOnly
+    
 
 if options.inputFiles:
   Source_Files = cms.untracked.vstring(options.inputFiles)
@@ -106,7 +115,8 @@ process.Ntuplizer = cms.EDAnalyzer("Ntuplizer",
     L1TrackInputTag     = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"),
     GenParticleInputTag = cms.InputTag("genParticles"),
     TkMuInputTag        = cms.InputTag("L1TkMuons"),
-    save_all_L1TTT      = cms.bool(True)
+    save_all_L1TTT      = cms.bool(True),
+    prompt_mu_only      = cms.bool(promptMuOnly)
 )
 
 process.Ntuples = cms.Path(

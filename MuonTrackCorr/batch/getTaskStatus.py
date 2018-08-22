@@ -96,6 +96,9 @@ if not args.short:
    print '** Unfinished jobs ID + CODE, logfile'
    for val in unfinished:
        print '-', val[0], '+', val[1], ' , ', logs_txt[val[0]]
+   print '** Missing log jobs ID'
+   for val in missing:
+       print '-', val[0]
 
 #######################
 if args.resubCmd or args.issueCmd:

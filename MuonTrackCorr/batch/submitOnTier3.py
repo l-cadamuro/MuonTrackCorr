@@ -64,6 +64,7 @@ parser.add_argument('--no-xrdcp-flist', dest='xrdcpflist',   help='do not xrdcp 
 parser.add_argument('--xrdcp-tar-only', dest='xrdcptaronly', help='only do the xrdcp of cmssw, no sub', action='store_true',  default=False)
 parser.add_argument('--dry-run',        dest='dryrun',       help='dry run without launching',          action='store_true',  default=False)
 parser.add_argument('--verbose',        dest='verbose',      help='set verbose mode',                   action='store_true',  default=False)
+parser.add_argument('--all-gen-mu',     dest='allgenmu',     help='save all gen mu (not only prompt ones)', action='store_true',  default=False)
 
 args = parser.parse_args()
 
@@ -194,7 +195,8 @@ if not args.xrdcptaronly:
         # writeln(outScript, 'ls -altrh')
         # writeln(outScript, 'echo "Arguments passed to this script are: for 1: $1, and for 2: $2"')
         writeln(outScript, 'echo "... starting CMSSW run"')
-        writeln(outScript, 'cmsRun %s inputFiles_load=%s outputFile=%s' % (cmsRunExec, outListNameBare, outputFileName))
+        theCmd = 'cmsRun %s inputFiles_load=%s outputFile=%s promptMuOnly=%i' % (cmsRunExec, outListNameBare, outputFileName, (0 if args.allgenmu else 1))
+        writeln(outScript, theCmd)
         writeln(outScript, 'echo "... cmsRun finished with status $?"')
         writeln(outScript, 'echo "... copying output file %s to EOS in %s"' % (outputFileName, outputEOSName))
         writeln(outScript, 'xrdcp -s %s %s' % (outputFileName, outputEOSName)) ## no not force overwrite output in destination

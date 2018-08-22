@@ -1,4 +1,4 @@
-SUFFIX_TAG="27Apr_TkMu"
+SUFFIX_TAG="3Mag_TkMu_moreinfotrk"
 
 echo "... preparing the submission (tar and copy of CMSSW)"
 python submitOnTier3.py --xrdcp-tar-only

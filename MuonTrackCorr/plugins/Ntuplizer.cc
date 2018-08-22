@@ -60,6 +60,7 @@ class Ntuplizer : public edm::EDAnalyzer {
 
         //
         bool save_all_trks_;
+        bool prompt_mu_only_;
         //
 
         //-----output---
@@ -93,6 +94,10 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> L1TT_trk_eta_;
         std::vector<float> L1TT_trk_phi_;
         std::vector<int> L1TT_trk_charge_;
+        std::vector<float> L1TT_trk_p_;
+        std::vector<float> L1TT_trk_z_;
+        std::vector<float> L1TT_trk_chi2_;
+        std::vector<int> L1TT_trk_nstubs_;
 
         unsigned int n_L1_TkMu_;
         std::vector<float> L1_TkMu_pt_;
@@ -152,6 +157,10 @@ void Ntuplizer::initialize()
     L1TT_trk_eta_.clear();
     L1TT_trk_phi_.clear();
     L1TT_trk_charge_.clear();
+    L1TT_trk_p_.clear();
+    L1TT_trk_z_.clear();
+    L1TT_trk_chi2_.clear();
+    L1TT_trk_nstubs_.clear();
 
     n_L1_TkMu_ = 0;
     L1_TkMu_pt_.clear();
@@ -195,7 +204,8 @@ Ntuplizer::Ntuplizer(const edm::ParameterSet& iConfig):
     genPartToken (consumes< GenParticleCollection >       (iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
     tkMuToken    (consumes< L1TkMuonParticleCollection >  (iConfig.getParameter<edm::InputTag>("TkMuInputTag")))
 {
-    save_all_trks_ =  iConfig.getParameter<bool>("save_all_L1TTT");
+    save_all_trks_  =  iConfig.getParameter<bool>("save_all_L1TTT");
+    prompt_mu_only_ =  iConfig.getParameter<bool>("prompt_mu_only");
     initialize();
 }
 
@@ -230,6 +240,10 @@ void Ntuplizer::beginJob()
     tree_->Branch("L1TT_trk_eta", &L1TT_trk_eta_);
     tree_->Branch("L1TT_trk_phi", &L1TT_trk_phi_);
     tree_->Branch("L1TT_trk_charge", &L1TT_trk_charge_);
+    tree_->Branch("L1TT_trk_p", &L1TT_trk_p_);
+    tree_->Branch("L1TT_trk_z", &L1TT_trk_z_);
+    tree_->Branch("L1TT_trk_chi2", &L1TT_trk_chi2_);
+    tree_->Branch("L1TT_trk_nstubs", &L1TT_trk_nstubs_);
 
     //
     tree_->Branch("n_L1_TkMu", &n_L1_TkMu_);
@@ -364,10 +378,13 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         if (abs(genpartit->pdgId()) != 13)
             continue;
 
-        // keep only hard scatter stuff (processing Z->mumu)
-        if (!genpartit->statusFlags().isPrompt())      continue;
-        // if (!genpartit->statusFlags().isHardProcess()) continue; // do not apply this (missing muons in Z->mumu)
-        if (!genpartit->statusFlags().isLastCopy())    continue;
+        if (prompt_mu_only_) // to be activated in the cfg. On only if interested in mu gun on Zmumu, off for muons in bjets
+        {
+            // keep only hard scatter stuff (processing Z->mumu)
+            if (!genpartit->statusFlags().isPrompt())      continue;
+            // if (!genpartit->statusFlags().isHardProcess()) continue; // do not apply this (missing muons in Z->mumu)
+            if (!genpartit->statusFlags().isLastCopy())    continue;
+        }
 
         ++n_gen_mu_;
         gen_mu_pt_.push_back(genpartit->pt());
@@ -386,11 +403,15 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         ++n_L1TT_trk_;
         if (save_all_trks_) // keep the branch structure but do not fill vectors
         {
-            L1TT_trk_pt_.push_back(l1trkit->getMomentum(nTrkPars).perp());
+            L1TT_trk_pt_ .push_back(l1trkit->getMomentum(nTrkPars).perp());
             L1TT_trk_eta_.push_back(l1trkit->getMomentum(nTrkPars).eta());
             L1TT_trk_phi_.push_back(l1trkit->getMomentum(nTrkPars).phi());
             int l1tttq = (l1trkit->getRInv(nTrkPars) > 0 ? 1 : -1);
             L1TT_trk_charge_.push_back(l1tttq);
+            L1TT_trk_p_     .push_back(l1trkit->getMomentum(nTrkPars).mag());
+            L1TT_trk_z_     .push_back(l1trkit->getPOCA().z());
+            L1TT_trk_chi2_  .push_back(l1trkit->getChi2(nTrkPars));
+            L1TT_trk_nstubs_.push_back(l1trkit->getStubRefs().size());
         }
         /*
         // check to access components info

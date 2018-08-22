@@ -40,6 +40,10 @@ class MuTkTree {
         TTreeReaderArray<float> L1TT_trk_eta    = {mtktread, "L1TT_trk_eta"};
         TTreeReaderArray<float> L1TT_trk_phi    = {mtktread, "L1TT_trk_phi"};
         TTreeReaderArray<int>   L1TT_trk_charge = {mtktread, "L1TT_trk_charge"};
+        TTreeReaderArray<float> L1TT_trk_p      = {mtktread, "L1TT_trk_p"};
+        TTreeReaderArray<float> L1TT_trk_z      = {mtktread, "L1TT_trk_z"};
+        TTreeReaderArray<float> L1TT_trk_chi2   = {mtktread, "L1TT_trk_chi2"};
+        TTreeReaderArray<int>   L1TT_trk_nstubs = {mtktread, "L1TT_trk_nstubs"};
 
         TTreeReaderValue<UInt_t> n_L1_TkMu     = {mtktread, "n_L1_TkMu"};
         TTreeReaderArray<float> L1_TkMu_pt     = {mtktread, "L1_TkMu_pt"};

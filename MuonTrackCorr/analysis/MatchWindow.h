@@ -7,7 +7,7 @@
 #include <iostream>
 
 /*
-** class  : MatchWindod
+** class  : MatchWindow
 ** author : L.Cadamuro (UF)
 ** date   : 25/12/2018
 ** brief  : encodes the lower and upper bounds to match a track to a muon
