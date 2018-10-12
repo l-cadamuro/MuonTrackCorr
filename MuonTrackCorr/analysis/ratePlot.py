@@ -16,19 +16,28 @@ r_TPTkMu = fIn.Get('rate_TPTkMu_lead_mu_pt')
 r_MyTPTkMu = fIn.Get('rate_MyTPTkMu_lead_mu_pt')
 r_UpgTkMu = fIn.Get('rate_UpgTkMu_lead_mu_pt')
 
+# plots = [
+#     r_EMTF,
+#     r_TPTkMu,
+#     r_MyTPTkMu,
+#     r_UpgTkMu,
+# ]
+
 plots = [
     r_EMTF,
-    r_TPTkMu,
-    r_MyTPTkMu,
+    # r_TPTkMu,
+    # r_MyTPTkMu,
     r_UpgTkMu,
 ]
 
+
 legs = {
-    r_EMTF     : 'EMTF (unscaled)',
+    r_EMTF     : 'EMTF standalone (all candidates)',
     r_TPTkMu   : 'TP correlator',
     r_MyTPTkMu : 'TP correlator (private impl.)',
     # r_UpgTkMu  : 'Upgrade correlator',
-    r_UpgTkMu  : 'p_{T}-dependent match',
+    # r_UpgTkMu  : 'p_{T}-dependent match',
+    r_UpgTkMu  : 'Dynamic windows correlator',
 }
 
 xmin = 0.0

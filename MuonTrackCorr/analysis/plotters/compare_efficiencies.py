@@ -61,19 +61,19 @@ c1 = ROOT.TCanvas('c1', 'c1', 600, 600)
 # c1.SetFrameLineWidth(3)
 
 
-# threshold = 0 ### use min 0 which means match exists
-# nbins = 50
-# xmin  = 0
-# xmax  = 100 
-# x_var = 'gen_pt'
-# x_title = 'p_{T}^{gen} [GeV]'
-
-threshold = 0 ### use min 0 which means match exists
+threshold = 15 ### use min 0 which means match exists
 nbins = 50
-xmin  = -2.4
-xmax  = 2.4 
-x_var = 'gen_eta'
-x_title = '#eta^{gen}'
+xmin  = 0
+xmax  = 100 
+x_var = 'gen_pt'
+x_title = 'p_{T}^{gen} [GeV]'
+
+#threshold = 0 ### use min 0 which means match exists
+#nbins = 50
+#xmin  = -2.4
+#xmax  = 2.4 
+#x_var = 'gen_eta'
+#x_title = '#eta^{gen}'
 
 ymin = 0.0 ### value or None
 ymax = 1.1

@@ -219,11 +219,20 @@ int main(int argc, char** argv)
     TH1D* nTracks_em_5 = new TH1D("nTracks_em_5",   "Tracks in the endcap;N_{tracks} with p_{T} > 5 GeV; a.u.",  150, 0, 150);
     TH1D* nTracks_em_10 = new TH1D("nTracks_em_10", "Tracks in the endcap;N_{tracks} with p_{T} > 10 GeV; a.u.", 150, 0, 150);
 
+    TH1D* nTracks_2_60deg = new TH1D("nTracks_2_60deg",   "Tracks in the endcap;N_{tracks} with p_{T} > 2 GeV in phi [0, 60] deg; a.u.",  150, 0, 150);
+    TH1D* nTracks_3_60deg = new TH1D("nTracks_3_60deg",   "Tracks in the endcap;N_{tracks} with p_{T} > 3 GeV in phi [0, 60] deg; a.u.",  150, 0, 150);
+    TH1D* nTracks_5_60deg = new TH1D("nTracks_5_60deg",   "Tracks in the endcap;N_{tracks} with p_{T} > 5 GeV in phi [0, 60] deg; a.u.",  150, 0, 150);
+    TH1D* nTracks_10_60deg = new TH1D("nTracks_10_60deg", "Tracks in the endcap;N_{tracks} with p_{T} > 10 GeV in phi [0, 60] deg; a.u.", 150, 0, 150);
 
     TH1D* nEMTF_2 = new TH1D("nEMTF_2",   "EMTF in the endcap;N_{EMTF} with p_{T} > 2 GeV; a.u.",  150, 0, 150);
     TH1D* nEMTF_3 = new TH1D("nEMTF_3",   "EMTF in the endcap;N_{EMTF} with p_{T} > 3 GeV; a.u.",  150, 0, 150);
     TH1D* nEMTF_5 = new TH1D("nEMTF_5",   "EMTF in the endcap;N_{EMTF} with p_{T} > 5 GeV; a.u.",  150, 0, 150);
     TH1D* nEMTF_10 = new TH1D("nEMTF_10", "EMTF in the endcap;N_{EMTF} with p_{T} > 10 GeV; a.u.", 150, 0, 150);
+
+    TH1D* nEMTF_2_60deg = new TH1D("nEMTF_2_60deg",   "EMTF in the endcap;N_{EMTF} with p_{T} > 2 GeV in phi [0, 60] deg; a.u.",  150, 0, 150);
+    TH1D* nEMTF_3_60deg = new TH1D("nEMTF_3_60deg",   "EMTF in the endcap;N_{EMTF} with p_{T} > 3 GeV in phi [0, 60] deg; a.u.",  150, 0, 150);
+    TH1D* nEMTF_5_60deg = new TH1D("nEMTF_5_60deg",   "EMTF in the endcap;N_{EMTF} with p_{T} > 5 GeV in phi [0, 60] deg; a.u.",  150, 0, 150);
+    TH1D* nEMTF_10_60deg = new TH1D("nEMTF_10_60deg", "EMTF in the endcap;N_{EMTF} with p_{T} > 10 GeV in phi [0, 60] deg; a.u.", 150, 0, 150);
 
     TH1D* track_pt = new TH1D("track_pt", "Tracks in the endcap;p_{T} [GeV]; a.u.", 1000, 0, 1000);
 
@@ -293,6 +302,16 @@ int main(int argc, char** argv)
         int nt_em_5 = 0;
         int nt_em_10 = 0;
 
+        int nt_2_60deg = 0;
+        int nt_3_60deg = 0;
+        int nt_5_60deg = 0;
+        int nt_10_60deg = 0;
+
+        int nt_em_2_60deg = 0;
+        int nt_em_3_60deg = 0;
+        int nt_em_5_60deg = 0;
+        int nt_em_10_60deg = 0;
+
         const int ngm_ep = n_mu_in_endcap(mtkt, true);
         const int ngm_em = n_mu_in_endcap(mtkt, false);
 
@@ -301,6 +320,7 @@ int main(int argc, char** argv)
         {
             float tk_eta = mtkt.L1TT_trk_eta.At(it);
             float tk_pt  = mtkt.L1TT_trk_pt.At(it);
+            float tk_phi = mtkt.L1TT_trk_phi.At(it);
 
             // use only tracks in events where no gen mu is in the corresponding endcap
             // to avoid biases from the gen mu track itself
@@ -322,6 +342,13 @@ int main(int argc, char** argv)
                     if (tk_pt > 3) ++nt_3;
                     if (tk_pt > 5) ++nt_5;
                     if (tk_pt > 10) ++nt_10;
+
+                    // phi in radians
+                    if (tk_pt > 2 && tk_phi > 0 && tk_phi < 1.0472) ++nt_2_60deg;
+                    if (tk_pt > 3 && tk_phi > 0 && tk_phi < 1.0472) ++nt_3_60deg;
+                    if (tk_pt > 5 && tk_phi > 0 && tk_phi < 1.0472) ++nt_5_60deg;
+                    if (tk_pt > 10 && tk_phi > 0 && tk_phi < 1.0472) ++nt_10_60deg;
+
                 }
                 else
                 {
@@ -349,6 +376,11 @@ int main(int argc, char** argv)
         nTracks_em_3 ->Fill(nt_em_3);
         nTracks_em_5 ->Fill(nt_em_5);
         nTracks_em_10 ->Fill(nt_em_10);
+
+        nTracks_2_60deg ->Fill(nt_2_60deg);
+        nTracks_3_60deg ->Fill(nt_3_60deg);
+        nTracks_5_60deg ->Fill(nt_5_60deg);
+        nTracks_10_60deg ->Fill(nt_10_60deg);
 
 
         // gen mu plots
@@ -504,6 +536,11 @@ int main(int argc, char** argv)
         int nemtf_5 = 0;
         int nemtf_10 = 0;
 
+        int nemtf_2_60deg = 0;
+        int nemtf_3_60deg = 0;
+        int nemtf_5_60deg = 0;
+        int nemtf_10_60deg = 0;
+
         // EMTF muitliplicites plots
         for (uint iemtf = 0; iemtf < *(mtkt.n_EMTF_mu); ++iemtf)
         {
@@ -531,6 +568,13 @@ int main(int argc, char** argv)
                     if (emtf_pt > 3) ++nemtf_3;
                     if (emtf_pt > 5) ++nemtf_5;
                     if (emtf_pt > 10) ++nemtf_10;
+
+                    // phi in radians
+                    if (emtf_pt > 2 && emtf_phi > 0 && emtf_phi < 1.0472) ++nemtf_2_60deg;
+                    if (emtf_pt > 3 && emtf_phi > 0 && emtf_phi < 1.0472) ++nemtf_3_60deg;
+                    if (emtf_pt > 5 && emtf_phi > 0 && emtf_phi < 1.0472) ++nemtf_5_60deg;
+                    if (emtf_pt > 10 && emtf_phi > 0 && emtf_phi < 1.0472) ++nemtf_10_60deg;
+
                 }
                             
                 EMTF_pt -> Fill(emtf_pt);
@@ -545,6 +589,11 @@ int main(int argc, char** argv)
         nEMTF_3 ->Fill(nemtf_3);
         nEMTF_5 ->Fill(nemtf_5);
         nEMTF_10 ->Fill(nemtf_10);
+
+        nEMTF_2_60deg ->Fill(nemtf_2_60deg);
+        nEMTF_3_60deg ->Fill(nemtf_3_60deg);
+        nEMTF_5_60deg ->Fill(nemtf_5_60deg);
+        nEMTF_10_60deg ->Fill(nemtf_10_60deg);
 
     }
 
