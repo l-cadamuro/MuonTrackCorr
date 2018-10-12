@@ -163,6 +163,9 @@ process.TFileService = cms.Service('TFileService',
 process.SimL1TMuon = cms.Sequence(process.simEmtfDigis)
 process.Muons = cms.Path(process.SimL1TMuon)
 
+## 12 Ott 2018 : Luca : revert manually the TkMu input from kBMTF to BMTF to avoid to run the kBMTF in the sequence
+process.L1TkMuons.L1BMTFInputTag  = cms.InputTag("simBmtfDigis","BMTF")
+
 # process.schedule = cms.Schedule(process.TTClusterStub, process.TTTracksWithTruth, process.L1simulation_step, process.Ntuples)
 # process.schedule = cms.Schedule(process.EcalEBtp_step,process.hgcl1tpg_step, process.TTTracks, process.L1simulation_step, process.Ntuples)
 process.schedule = cms.Schedule(process.TTTracks, process.Muons, process.L1MuTkMatch_step, process.Ntuples)
