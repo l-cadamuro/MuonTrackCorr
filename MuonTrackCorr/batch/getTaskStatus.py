@@ -4,6 +4,7 @@ import argparse
 import datetime
 import glob
 import re
+from itertools import groupby
 
 def getLog (proto, ID, silenceWarning=False):
     logs = glob.glob(proto.format(ID, '*'))
@@ -99,6 +100,16 @@ if not args.short:
    print '** Missing log jobs ID'
    for val in missing:
        print '-', val[0]
+
+### aggregate the failure causes
+print "\n ** Aggregated list of failures"
+groups = []
+uniquekeys = []
+for k, g in groupby( sorted(failed, key=lambda x : x[1]), lambda x : x[1]):
+   groups.append(list(g))    # Store group iterator as a list
+   uniquekeys.append(k)
+for idx, uk in enumerate(uniquekeys):
+    print ' -- {:.1f}% : {:}'.format(100.*len(groups[idx]) / len(failed), uk)
 
 #######################
 if args.resubCmd or args.issueCmd:
