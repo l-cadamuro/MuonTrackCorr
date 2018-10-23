@@ -62,6 +62,7 @@ parser.add_argument('--no-tar',         dest='tar',          help='do not tar th
 parser.add_argument('--no-xrdcp-tar',   dest='xrdcptar',     help='do not xrdcp the tar to EOS',        action='store_false', default=True)
 parser.add_argument('--no-xrdcp-flist', dest='xrdcpflist',   help='do not xrdcp the filelist to EOS',   action='store_false', default=True)
 parser.add_argument('--xrdcp-tar-only', dest='xrdcptaronly', help='only do the xrdcp of cmssw, no sub', action='store_true',  default=False)
+parser.add_argument('--tar-suffix',     dest='tarsuffix',    help='appendix to the tar name',           default="")
 parser.add_argument('--dry-run',        dest='dryrun',       help='dry run without launching',          action='store_true',  default=False)
 parser.add_argument('--verbose',        dest='verbose',      help='set verbose mode',                   action='store_true',  default=False)
 parser.add_argument('--all-gen-mu',     dest='allgenmu',     help='save all gen mu (not only prompt ones)', action='store_true',  default=False)
@@ -77,6 +78,7 @@ scram_arch    = os.environ['SCRAM_ARCH']
 print '** INFO: CMSSW located in: ', cmssw_base
 
 tarName      = '%s_tar.tgz' % cmssw_version
+if args.tarsuffix: tarName = tarName.replace('.tgz', '_' + args.tarsuffix + '.tgz')
 cmsswWorkDir = os.path.abspath(os.path.join(cmssw_base, '..'))
 tarLFN       = cmsswWorkDir + '/' + tarName
 
