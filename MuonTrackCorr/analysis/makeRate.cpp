@@ -61,22 +61,31 @@ int appendFromFileList (TChain* chain, string filename)
 }
 
 
-int main()
+int main(int argc, char** argv)
 {
     string filelist = "filelist/NuGun_200PU_8Giu_TkMu_moreinfotrk_allEvts.txt";
     // string outputname = "muon_trigger_rates.root";
     string outputname = "muon_trigger_rates_preselTracks.root";
+
+    if (argc > 2)
+    {
+        filelist   = argv[1];    
+        outputname = argv[2];
+    }
+
 
     int quantile = 99;
     bool doRelax = true;
     float sftor  = 0.5;
     float sftor_initial = 0.0;
 
-    int maxEvts = 100000;
+    // int maxEvts = 100000;
+    int maxEvts = -1;
 
     /// -----------------------------------------------------------
 
     cout << "... running on filelist " << filelist << endl;
+    cout << "... saving output to " << outputname << endl;
 
     TChain* ch = new TChain("Ntuplizer/MuonTrackTree");
     MuTkTree mtkt (ch);

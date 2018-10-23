@@ -529,6 +529,27 @@ int main(int argc, char** argv)
         filelist = "filelist/BjetToMu_endcap_PosNegCat_0PU_25Giu_TkMu_moreinfotrk.txt";
         outputname = "matched_tree_Bjets_0PU.root";
     }
+    // Nov review plots
+    if (iconfig == 5) {
+        cout << "... customised to single Mu, PU 200, DW corr w/o relax" << endl;
+        filelist = "filelist/SingleMu_FlatPt-2to100_L1TPU200_12Ott_DWcorr_CMSSWdefaultNoRelax.txt";
+        outputname = "matched_tree_SingleMu_PU200_DWcorr_CMSSWdefaultNoRelax.root";
+    }
+    if (iconfig == 6) {
+        cout << "... customised to single Mu, PU 200, DW corr with relax" << endl;
+        filelist = "filelist/SingleMu_FlatPt-2to100_L1TPU200_12Ott_DWcorr_relax0p5At6GeV.txt";
+        outputname = "matched_tree_SingleMu_PU200_DWcorr_relax0p5At6GeV.root";
+    }
+    if (iconfig == 7) {
+        cout << "... customised to single Mu, PU 200, TP corr dr 0.7" << endl;
+        filelist = "filelist/SingleMu_FlatPt-2to100_L1TPU200_12Ott_TPcorr.txt";
+        outputname = "matched_tree_SingleMu_PU200_TPcorr.root";
+    }
+    if (iconfig == 8) {
+        cout << "... customised to single Mu, PU 200, TP corr dr 0.2" << endl;
+        filelist = "filelist/SingleMu_FlatPt-2to100_L1TPU200_12Ott_TPcorr_SvenPars.txt";
+        outputname = "matched_tree_SingleMu_PU200_TPcorr_SvenPars.root";
+    }
 
     // --- suffix to modify output name
     if (argc > 2)
@@ -582,7 +603,7 @@ int main(int argc, char** argv)
 
     /////////////////////////////////////////////////////////////////////
 
-    int maxEvts = 60000;
+    int maxEvts = -1;
 
 
     cout << "... running on filelist " << filelist << endl;
