@@ -55,12 +55,15 @@ class Ntuplizer : public edm::EDAnalyzer {
         const edm::EDGetTokenT< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
         const edm::EDGetTokenT< std::vector< reco::GenParticle > > genPartToken;
         const edm::EDGetTokenT< L1TkMuonParticleCollection > tkMuToken;
+        const edm::EDGetTokenT< L1TkMuonParticleCollection > tkMuStubToken;
 
         const static int nTrkPars = 4; // number of parameters in the trk fit -- eventually to be made configurable
 
         //
         bool save_all_trks_;
         bool prompt_mu_only_;
+        bool mu_from_tau_only_;
+        bool save_tau_3mu_;
         //
 
         //-----output---
@@ -106,12 +109,25 @@ class Ntuplizer : public edm::EDAnalyzer {
         // std::vector<float> L1_TkMu_e_;
         // std::vector<int> L1_TkMu_charge_;
 
+        unsigned int n_L1_TkMuStub_;
+        std::vector<float> L1_TkMuStub_pt_;
+        std::vector<float> L1_TkMuStub_eta_;
+        std::vector<float> L1_TkMuStub_phi_;
+
         unsigned int n_gen_mu_;
         std::vector<float> gen_mu_pt_;
         std::vector<float> gen_mu_eta_;
         std::vector<float> gen_mu_phi_;
         std::vector<float> gen_mu_e_;
         std::vector<int>   gen_mu_charge_;
+        std::vector<int>   gen_mu_gentauidx_;
+
+        unsigned int n_gen_tau_;
+        std::vector<float> gen_tau_pt_;
+        std::vector<float> gen_tau_eta_;
+        std::vector<float> gen_tau_phi_;
+        std::vector<float> gen_tau_e_;
+        std::vector<int>   gen_tau_charge_;
 
         // hits
         // format taken from : https://github.com/jiafulow/L1TMuonSimulationsMar2017/blob/master/Analyzers/plugins/NtupleMaker.cc
@@ -168,12 +184,25 @@ void Ntuplizer::initialize()
     L1_TkMu_phi_.clear();
     // L1_TkMu_charge_.clear();
 
+    n_L1_TkMuStub_ = 0;
+    L1_TkMuStub_pt_.clear();
+    L1_TkMuStub_eta_.clear();
+    L1_TkMuStub_phi_.clear();
+
     n_gen_mu_   = 0;
     gen_mu_pt_.clear();
     gen_mu_eta_.clear();
     gen_mu_phi_.clear();
     gen_mu_e_.clear();
     gen_mu_charge_.clear();
+    gen_mu_gentauidx_.clear();
+
+    n_gen_tau_   = 0;
+    gen_tau_pt_.clear();
+    gen_tau_eta_.clear();
+    gen_tau_phi_.clear();
+    gen_tau_e_.clear();
+    gen_tau_charge_.clear();
 
     n_mu_hit_ = 0;
     mu_hit_endcap_.clear();
@@ -198,14 +227,17 @@ void Ntuplizer::initialize()
 Ntuplizer::Ntuplizer(const edm::ParameterSet& iConfig):
     // muTokenPos(consumes< MuonBxCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonPosInputTag"))),
     // muTokenNeg(consumes< MuonBxCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonNegInputTag"))),
-    muToken      (consumes< EMTFTrackCollection >         (iConfig.getParameter<edm::InputTag>("L1MuonEMTFInputTag"))),
-    mu_hitToken  (consumes< EMTFHitCollection >           (iConfig.getParameter<edm::InputTag>("L1EMTFHitInputTag"))),
-    trackToken   (consumes< L1TTTrackCollectionType >     (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-    genPartToken (consumes< GenParticleCollection >       (iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
-    tkMuToken    (consumes< L1TkMuonParticleCollection >  (iConfig.getParameter<edm::InputTag>("TkMuInputTag")))
+    muToken       (consumes< EMTFTrackCollection >         (iConfig.getParameter<edm::InputTag>("L1MuonEMTFInputTag"))),
+    mu_hitToken   (consumes< EMTFHitCollection >           (iConfig.getParameter<edm::InputTag>("L1EMTFHitInputTag"))),
+    trackToken    (consumes< L1TTTrackCollectionType >     (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+    genPartToken  (consumes< GenParticleCollection >       (iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
+    tkMuToken     (consumes< L1TkMuonParticleCollection >  (iConfig.getParameter<edm::InputTag>("TkMuInputTag"))),
+    tkMuStubToken (consumes< L1TkMuonParticleCollection >  (iConfig.getParameter<edm::InputTag>("TkMuStubInputTag")))
 {
-    save_all_trks_  =  iConfig.getParameter<bool>("save_all_L1TTT");
-    prompt_mu_only_ =  iConfig.getParameter<bool>("prompt_mu_only");
+    save_all_trks_    =  iConfig.getParameter<bool>("save_all_L1TTT");
+    prompt_mu_only_   =  iConfig.getParameter<bool>("prompt_mu_only");
+    mu_from_tau_only_ =  iConfig.getParameter<bool>("mu_from_tau_only");
+    save_tau_3mu_     =  iConfig.getParameter<bool>("save_tau_3mu");
     initialize();
 }
 
@@ -251,12 +283,19 @@ void Ntuplizer::beginJob()
     tree_->Branch("L1_TkMu_eta", &L1_TkMu_eta_);
     tree_->Branch("L1_TkMu_phi", &L1_TkMu_phi_);
 
+    tree_->Branch("n_L1_TkMuStub", &n_L1_TkMuStub_);
+    tree_->Branch("L1_TkMuStub_pt", &L1_TkMuStub_pt_);
+    tree_->Branch("L1_TkMuStub_eta", &L1_TkMuStub_eta_);
+    tree_->Branch("L1_TkMuStub_phi", &L1_TkMuStub_phi_);
+
     tree_->Branch("n_gen_mu", &n_gen_mu_);
     tree_->Branch("gen_mu_pt", &gen_mu_pt_);
     tree_->Branch("gen_mu_eta", &gen_mu_eta_);
     tree_->Branch("gen_mu_phi", &gen_mu_phi_);
     tree_->Branch("gen_mu_e", &gen_mu_e_);
     tree_->Branch("gen_mu_charge", &gen_mu_charge_);
+    if (save_tau_3mu_)
+        tree_->Branch("gen_mu_gentauidx", &gen_mu_gentauidx_);
 
     // hit info
     tree_->Branch("n_mu_hit", &n_mu_hit_);
@@ -274,7 +313,16 @@ void Ntuplizer::beginJob()
     tree_->Branch("mu_hit_sim_phi", &mu_hit_sim_phi_);
     tree_->Branch("mu_hit_sim_theta", &mu_hit_sim_theta_);
     tree_->Branch("mu_hit_sim_eta", &mu_hit_sim_eta_);
-
+    //
+    if (save_tau_3mu_)
+    {
+        tree_->Branch("n_gen_tau", &n_gen_tau_);
+        tree_->Branch("gen_tau_pt", &gen_tau_pt_);
+        tree_->Branch("gen_tau_eta", &gen_tau_eta_);
+        tree_->Branch("gen_tau_phi", &gen_tau_phi_);
+        tree_->Branch("gen_tau_e", &gen_tau_e_);
+        tree_->Branch("gen_tau_charge", &gen_tau_charge_);   
+    }
 }
 
 void Ntuplizer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
@@ -371,31 +419,127 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(tkMuToken, tkmuH);
     const L1TkMuonParticleCollection& tkmus = (*tkmuH.product());
 
+    edm::Handle<L1TkMuonParticleCollection> tkmustubH;
+    iEvent.getByToken(tkMuStubToken, tkmustubH);
+    const L1TkMuonParticleCollection& tkmustubs = (*tkmustubH.product());
+
     // ------------------------------------------------------
+
+    // for the  tau->3mu cross-linking
+    std::vector<int> selected_muons;
+    std::vector<int> selected_taus;
 
     for (auto genpartit = genparts.begin(); genpartit != genparts.end(); ++genpartit)
     {
-        if (abs(genpartit->pdgId()) != 13)
+        int apdgid = abs(genpartit->pdgId());
+        // if (apdgid != 13 && (apdgid != 15 && save_tau_3mu_) )
+        //     continue;
+        if (apdgid != 13 && apdgid != 15)
             continue;
 
-        if (prompt_mu_only_) // to be activated in the cfg. On only if interested in mu gun on Zmumu, off for muons in bjets
+        // save the muons
+        if (apdgid == 13)
         {
-            // keep only hard scatter stuff (processing Z->mumu)
-            if (!genpartit->statusFlags().isPrompt())      continue;
-            // if (!genpartit->statusFlags().isHardProcess()) continue; // do not apply this (missing muons in Z->mumu)
-            if (!genpartit->statusFlags().isLastCopy())    continue;
+
+            if (prompt_mu_only_) // to be activated in the cfg. On only if interested in mu gun on Zmumu, off for muons in bjets
+            {
+                // keep only hard scatter stuff (processing Z->mumu)
+                if (!genpartit->statusFlags().isPrompt())      continue;
+                // if (!genpartit->statusFlags().isHardProcess()) continue; // do not apply this (missing muons in Z->mumu)
+                if (!genpartit->statusFlags().isLastCopy())    continue;
+            }
+
+            if (mu_from_tau_only_) // to be activated in the cfg. On only if interested in mu from tau->3mu samples
+            {
+                if (abs(genpartit->mother(0)->pdgId()) != 15)      continue;
+            }
+
+            ++n_gen_mu_;
+            gen_mu_pt_.push_back(genpartit->pt());
+            gen_mu_eta_.push_back(genpartit->eta());
+            gen_mu_phi_.push_back(genpartit->phi());
+            gen_mu_e_.push_back(genpartit->energy());
+            gen_mu_charge_.push_back(genpartit->charge());
+            // cout << genpartit->status() << endl;
+            // the single mu sample has 2 muons, back-to-back
+
+            selected_muons.push_back(std::distance(genparts.begin(), genpartit));
         }
 
-        ++n_gen_mu_;
-        gen_mu_pt_.push_back(genpartit->pt());
-        gen_mu_eta_.push_back(genpartit->eta());
-        gen_mu_phi_.push_back(genpartit->phi());
-        gen_mu_e_.push_back(genpartit->energy());
-        gen_mu_charge_.push_back(genpartit->charge());
-        // cout << genpartit->status() << endl;
-        // the single mu sample has 2 muons, back-to-back
+        // save the taus
+        if (apdgid == 15 && save_tau_3mu_)
+        {
+            // only tau -> 3mu
+            if (genpartit->numberOfDaughters() != 3)
+                continue;
 
+            int apdgiddau1 = abs(genpartit->daughter(0)->pdgId());
+            int apdgiddau2 = abs(genpartit->daughter(1)->pdgId());
+            int apdgiddau3 = abs(genpartit->daughter(2)->pdgId());
+
+            bool istau3mu = (apdgiddau1 == 13 && apdgiddau2 == 13 && apdgiddau3 == 13);
+            if (istau3mu)
+            {
+                ++n_gen_tau_;
+                gen_tau_pt_.push_back(genpartit->pt());
+                gen_tau_eta_.push_back(genpartit->eta());
+                gen_tau_phi_.push_back(genpartit->phi());
+                gen_tau_e_.push_back(genpartit->energy());
+                gen_tau_charge_.push_back(genpartit->charge());
+
+                selected_taus.push_back(std::distance(genparts.begin(), genpartit));
+            }
+        }
     }
+
+    // now cross-link mu candidates and taus
+    if (save_tau_3mu_)
+    {
+        for (uint igenmu = 0; igenmu < selected_muons.size(); ++igenmu)
+        {
+            int idxgenmu = selected_muons.at(igenmu);
+            auto muonit = genparts.begin() + idxgenmu;
+            auto muonmotherit = muonit->mother(0);
+
+            int itau_match = -1;
+            for (uint igentau = 0; igentau < selected_taus.size(); ++igentau)
+            {
+                int idxgentau = selected_taus.at(igentau);
+                auto tauit = genparts.begin() + idxgentau;
+
+                // if the mu mother is the tau, save it index
+                if (&(*muonmotherit) == &(*tauit))
+                {
+                    itau_match = igentau;
+                    break;
+                }
+            }
+            // store the idx - will point to the position in the tau vector
+            gen_mu_gentauidx_.push_back(itau_match);            
+        }
+    }
+
+    // // some debug!
+    // cout << "------ TAUS ------ " << endl;
+    // for (uint igentau = 0; igentau < gen_tau_pt_.size(); ++igentau)
+    // {
+    //     cout << igentau
+    //          << ") pt = " << gen_tau_pt_.at(igentau)
+    //          << " eta = " << gen_tau_eta_.at(igentau)
+    //          << " phi = " << gen_tau_phi_.at(igentau)
+    //          << endl;
+    // }
+    // cout << "------ MUONS ------ " << endl;
+    // for (uint igenmu = 0; igenmu < gen_mu_pt_.size(); ++igenmu)
+    // {
+    //     cout << igenmu
+    //          << ") pt = " << gen_mu_pt_.at(igenmu)
+    //          << " eta = " << gen_mu_eta_.at(igenmu)
+    //          << " phi = " << gen_mu_phi_.at(igenmu)
+    //          << " tau_idx = " << gen_mu_gentauidx_.at(igenmu)
+    //          << endl;
+    // }
+
 
     // n_L1TT_trk_ = l1tks.size();
     for (auto l1trkit = l1tks.begin(); l1trkit != l1tks.end(); ++l1trkit)
@@ -473,6 +617,16 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         L1_TkMu_eta_ . push_back(tkmu.eta());
         L1_TkMu_phi_ . push_back(tkmu.phi());
     }
+
+    /// trk + stubs
+    for (const auto& tkmustub : tkmustubs)
+    {
+        ++n_L1_TkMuStub_;
+        L1_TkMuStub_pt_  . push_back(tkmustub.pt());
+        L1_TkMuStub_eta_ . push_back(tkmustub.eta());
+        L1_TkMuStub_phi_ . push_back(tkmustub.phi());
+    }
+
 
     /// hits
     for (const auto& hit : l1muhits)

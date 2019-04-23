@@ -33,6 +33,7 @@ parser.add_argument('--dir',          dest='folder',      help='process folder',
 parser.add_argument('--resubCmd',     dest='resubCmd',    help='print resubmit cmd',  action='store_true',   default=False)
 parser.add_argument('--issueCmd',     dest='issueCmd',    help='issue resubmit cmd',  action='store_true',   default=False)
 parser.add_argument('--long',         dest='short',       help='want long summary',   action='store_false',  default=True)
+parser.add_argument('--flist',        dest='flist',       help='dump good files to filelist',                default=None)
 
 args = parser.parse_args()
 
@@ -110,6 +111,15 @@ for k, g in groupby( sorted(failed, key=lambda x : x[1]), lambda x : x[1]):
    uniquekeys.append(k)
 for idx, uk in enumerate(uniquekeys):
     print ' -- {:.1f}% : {:}'.format(100.*len(groups[idx]) / len(failed), uk)
+
+if args.flist:
+    print '** Writing the successful files to the filelist ', args.flist
+    ofile_proto = 'root://cmseos.fnal.gov//store/user/lcadamur/L1MuTrks_ntuples/{dir}/output/ntuple_{jobidx}.root'
+    print '***** assuming that ntuples are staged out as: ', ofile_proto
+    out_flist = open(args.flist, 'w')
+    for val in success:
+        ofile = ofile_proto.format(dir=args.folder.replace('jobs_', ''), jobidx=val[0])
+        out_flist.write(ofile+'\n')
 
 #######################
 if args.resubCmd or args.issueCmd:

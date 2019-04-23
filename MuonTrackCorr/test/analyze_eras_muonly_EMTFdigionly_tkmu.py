@@ -43,11 +43,30 @@ options.register ('promptMuOnly',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Save only prompt mu (0 for false, 1 for true)")
+options.register ('muFromTausOnly',
+                  0, # default value
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "Save only mu from tau decays (0 for false, 1 for true) - used for tau to 3mu studies")
+options.register ('saveTauTo3Mu',
+                  0, # default value
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "Save the gen taus that decay to 3mu (0 for false, 1 for true) - used for tau to 3mu studies")
+
 options.parseArguments()
 
 promptMuOnly = False if options.promptMuOnly == 0 else True
 print "... saving only prompt muons? ", promptMuOnly
+
+muFromTausOnly = False if options.muFromTausOnly == 0 else True
+print "... saving only prompt muons? ", muFromTausOnly
+
+saveTauTo3Mu = False if options.saveTauTo3Mu == 0 else True
+print "... saving taus to 3mu? ", saveTauTo3Mu
     
+if options.promptMuOnly == 1 and options.muFromTausOnly == 1:
+    raise RuntimeError('GEN LEVEL muon options conflict: asking to save "only prompt" and "only from tau"')
 
 if options.inputFiles:
   Source_Files = cms.untracked.vstring(options.inputFiles)
@@ -56,7 +75,19 @@ else:
     # '/store/group/l1upgrades/L1MuTrks/MuMu_2to2000_flatOneOverPt_8Mar2018/output/MuMu_FEVTDEBUGHLT_0.root',
     # '/store/relval/CMSSW_9_3_7/RelValZMM_14/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU200-v1/10000/8E2F2F0B-2931-E811-8278-E0071B74AC10.root'
     # '/store/mc/PhaseIIFall17D/SingleMu_FlatPt-2to100/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/00000/008F844C-0E43-E811-A851-A0369FE2C1E4.root',
-    '/store/mc/PhaseIIFall17D/SingleNeutrino/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/80000/00157B11-405C-E811-89CA-0CC47AFB81B4.root'
+    # '/store/mc/PhaseIIFall17D/SingleNeutrino/GEN-SIM-DIGI-RAW/L1TPU200_93X_upgrade2023_realistic_v5-v1/80000/00157B11-405C-E811-89CA-0CC47AFB81B4.root'
+    #'/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_0.root'
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_0.root',
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_1.root',
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_2.root',
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_3.root',
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_4.root',
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_5.root',
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_6.root',
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_7.root',
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_8.root',
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_9.root',
+    '/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_10.root',
   )
 
 process.source = cms.Source("PoolSource", fileNames = Source_Files,
@@ -115,8 +146,11 @@ process.Ntuplizer = cms.EDAnalyzer("Ntuplizer",
     L1TrackInputTag     = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"),
     GenParticleInputTag = cms.InputTag("genParticles"),
     TkMuInputTag        = cms.InputTag("L1TkMuons"),
+    TkMuStubInputTag    = cms.InputTag("L1TkMuonStub"),
     save_all_L1TTT      = cms.bool(True),
-    prompt_mu_only      = cms.bool(promptMuOnly)
+    prompt_mu_only      = cms.bool(promptMuOnly),
+    mu_from_tau_only    = cms.bool(muFromTausOnly),
+    save_tau_3mu        = cms.bool(saveTauTo3Mu),
 )
 
 process.Ntuples = cms.Path(
@@ -147,6 +181,10 @@ process.L1simulation_step = cms.Path(process.SimL1Emulator)
 
 process.load('L1Trigger.L1TTrackMatch.L1TkMuonProducer_cfi')
 process.L1MuTkMatch_step = cms.Path(process.L1TkMuons)
+
+process.load('L1Trigger.L1TTrackMatch.L1TkMuonStubProducer_cfi')
+process.L1TkMuStubMatch_step = cms.Path(process.L1TkMuonStub)
+
 # from L1Trigger.L1TMuonEndCap.customise_Phase2C2 import customise as customise_Phase2C2
 # process = customise_Phase2C2(process)
 
@@ -168,7 +206,8 @@ process.L1TkMuons.L1BMTFInputTag  = cms.InputTag("simBmtfDigis","BMTF")
 
 # process.schedule = cms.Schedule(process.TTClusterStub, process.TTTracksWithTruth, process.L1simulation_step, process.Ntuples)
 # process.schedule = cms.Schedule(process.EcalEBtp_step,process.hgcl1tpg_step, process.TTTracks, process.L1simulation_step, process.Ntuples)
-process.schedule = cms.Schedule(process.TTTracks, process.Muons, process.L1MuTkMatch_step, process.Ntuples)
+# process.schedule = cms.Schedule(process.TTTracks, process.Muons, process.L1MuTkMatch_step, process.Ntuples)
+process.schedule = cms.Schedule(process.TTTracks, process.Muons, process.L1MuTkMatch_step, process.L1TkMuStubMatch_step, process.Ntuples)
 # process.schedule = cms.Schedule(process.PrintMus, process.TTTracks, process.Muons, process.L1MuTkMatch_step, process.Ntuples)
 
 
