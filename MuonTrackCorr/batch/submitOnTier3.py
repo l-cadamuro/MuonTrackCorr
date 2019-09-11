@@ -88,7 +88,7 @@ tarLFN       = cmsswWorkDir + '/' + tarName
 # cmsRunExec   = 'ntuplizer.py' # python to run
 
 cmsRunInto   = 'MuonTrackCorr/MuonTrackCorr/test' # where to run cmsRun, relative from CMSSW/src
-cmsRunExec   = 'analyze_eras_muonly_EMTFdigionly_tkmu.py' # python to run
+cmsRunExec   = 'analyze_TDR_MC.py' # python to run
 
 
 ##############################
