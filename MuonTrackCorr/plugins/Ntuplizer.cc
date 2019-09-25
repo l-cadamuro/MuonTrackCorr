@@ -31,6 +31,12 @@ using namespace edm;
 using namespace l1t;
 using namespace reco;
 
+// From L1Trigger/L1TMuonEndCap/interface/MuonTriggerPrimitive.h
+class TriggerPrimitive {
+public:
+  enum subsystem_type{kDT,kCSC,kRPC,kGEM,kME0,kNSubsystems};
+};
+
 class Ntuplizer : public edm::EDAnalyzer {
     public:
 
@@ -122,6 +128,12 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> L1_TkMu_pt_;
         std::vector<float> L1_TkMu_eta_;
         std::vector<float> L1_TkMu_phi_;
+        std::vector<int>   L1_TkMu_charge_;
+        std::vector<float> L1_TkMu_p_;
+        std::vector<float> L1_TkMu_z_;
+        std::vector<float> L1_TkMu_chi2_;
+        std::vector<int>   L1_TkMu_nstubs_;
+        std::vector<int>   L1_TkMu_mudetID_;
         // std::vector<float> L1_TkMu_e_;
         // std::vector<int> L1_TkMu_charge_;
 
@@ -129,6 +141,11 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> L1_TkMuStub_pt_;
         std::vector<float> L1_TkMuStub_eta_;
         std::vector<float> L1_TkMuStub_phi_;
+        std::vector<int>   L1_TkMuStub_charge_;
+        std::vector<float> L1_TkMuStub_p_;
+        std::vector<float> L1_TkMuStub_z_;
+        std::vector<float> L1_TkMuStub_chi2_;
+        std::vector<int>   L1_TkMuStub_nstubs_;
 
         unsigned int n_gen_mu_;
         std::vector<float> gen_mu_pt_;
@@ -158,6 +175,17 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<int16_t>  mu_hit_bx_;
         std::vector<int16_t>  mu_hit_type_;  // subsystem: DT=0,CSC=1,RPC=2,GEM=3
         std::vector<int16_t>  mu_hit_neighbor_;
+        //
+        std::vector<int16_t>  mu_hit_strip_;
+        std::vector<int16_t>  mu_hit_wire_;
+        std::vector<int16_t>  mu_hit_roll_;
+        std::vector<int16_t>  mu_hit_quality_;
+        std::vector<int16_t>  mu_hit_pattern_;
+        std::vector<int16_t>  mu_hit_bend_;
+        std::vector<int16_t>  mu_hit_time_;
+        std::vector<int16_t>  mu_hit_fr_;
+        std::vector<int32_t>  mu_hit_emtf_phi_;
+        std::vector<int32_t>  mu_hit_emtf_theta_;
         //
         std::vector<float  >  mu_hit_sim_phi_;
         std::vector<float  >  mu_hit_sim_theta_;
@@ -211,12 +239,23 @@ void Ntuplizer::initialize()
     L1_TkMu_pt_.clear();
     L1_TkMu_eta_.clear();
     L1_TkMu_phi_.clear();
+    L1_TkMu_charge_.clear();
+    L1_TkMu_p_.clear();
+    L1_TkMu_z_.clear();
+    L1_TkMu_chi2_.clear();
+    L1_TkMu_nstubs_.clear();
+    L1_TkMu_mudetID_.clear();
     // L1_TkMu_charge_.clear();
 
     n_L1_TkMuStub_ = 0;
     L1_TkMuStub_pt_.clear();
     L1_TkMuStub_eta_.clear();
     L1_TkMuStub_phi_.clear();
+    L1_TkMuStub_charge_.clear();
+    L1_TkMuStub_p_.clear();
+    L1_TkMuStub_z_.clear();
+    L1_TkMuStub_chi2_.clear();
+    L1_TkMuStub_nstubs_.clear();
 
     n_gen_mu_   = 0;
     gen_mu_pt_.clear();
@@ -244,6 +283,17 @@ void Ntuplizer::initialize()
     mu_hit_bx_.clear();
     mu_hit_type_.clear();
     mu_hit_neighbor_.clear();
+    //
+    mu_hit_strip_.clear();
+    mu_hit_wire_.clear();
+    mu_hit_roll_.clear();
+    mu_hit_quality_.clear();
+    mu_hit_pattern_.clear();
+    mu_hit_bend_.clear();
+    mu_hit_time_.clear();
+    mu_hit_fr_.clear();
+    mu_hit_emtf_phi_.clear();
+    mu_hit_emtf_theta_.clear();
     //
     mu_hit_sim_phi_.clear();
     mu_hit_sim_theta_.clear();
@@ -327,11 +377,22 @@ void Ntuplizer::beginJob()
     tree_->Branch("L1_TkMu_pt", &L1_TkMu_pt_);
     tree_->Branch("L1_TkMu_eta", &L1_TkMu_eta_);
     tree_->Branch("L1_TkMu_phi", &L1_TkMu_phi_);
+    tree_->Branch("L1_TkMu_charge", &L1_TkMu_charge_);
+    tree_->Branch("L1_TkMu_p", &L1_TkMu_p_);
+    tree_->Branch("L1_TkMu_z", &L1_TkMu_z_);
+    tree_->Branch("L1_TkMu_chi2", &L1_TkMu_chi2_);
+    tree_->Branch("L1_TkMu_nstubs", &L1_TkMu_nstubs_);
+    tree_->Branch("L1_TkMu_mudetID", &L1_TkMu_mudetID_);
 
     tree_->Branch("n_L1_TkMuStub", &n_L1_TkMuStub_);
     tree_->Branch("L1_TkMuStub_pt", &L1_TkMuStub_pt_);
     tree_->Branch("L1_TkMuStub_eta", &L1_TkMuStub_eta_);
     tree_->Branch("L1_TkMuStub_phi", &L1_TkMuStub_phi_);
+    tree_->Branch("L1_TkMuStub_charge", &L1_TkMuStub_charge_);
+    tree_->Branch("L1_TkMuStub_p", &L1_TkMuStub_p_);
+    tree_->Branch("L1_TkMuStub_z", &L1_TkMuStub_z_);
+    tree_->Branch("L1_TkMuStub_chi2", &L1_TkMuStub_chi2_);
+    tree_->Branch("L1_TkMuStub_nstubs", &L1_TkMuStub_nstubs_);
 
     tree_->Branch("n_gen_mu", &n_gen_mu_);
     tree_->Branch("gen_mu_pt", &gen_mu_pt_);
@@ -354,6 +415,17 @@ void Ntuplizer::beginJob()
     tree_->Branch("mu_hit_bx", &mu_hit_bx_);
     tree_->Branch("mu_hit_type", &mu_hit_type_);
     tree_->Branch("mu_hit_neighbor", &mu_hit_neighbor_);
+    //
+    tree_->Branch("mu_hit_strip", &mu_hit_strip_);
+    tree_->Branch("mu_hit_wire", &mu_hit_wire_);
+    tree_->Branch("mu_hit_roll", &mu_hit_roll_);
+    tree_->Branch("mu_hit_quality", &mu_hit_quality_);
+    tree_->Branch("mu_hit_pattern", &mu_hit_pattern_);
+    tree_->Branch("mu_hit_bend", &mu_hit_bend_);
+    tree_->Branch("mu_hit_time", &mu_hit_time_);
+    tree_->Branch("mu_hit_fr", &mu_hit_fr_);
+    tree_->Branch("mu_hit_emtf_phi", &mu_hit_emtf_phi_);
+    tree_->Branch("mu_hit_emtf_theta", &mu_hit_emtf_theta_);
     //
     tree_->Branch("mu_hit_sim_phi", &mu_hit_sim_phi_);
     tree_->Branch("mu_hit_sim_theta", &mu_hit_sim_theta_);
@@ -427,7 +499,64 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
 
         return hit_refs;
-      };
+    };
+
+    // helper functions by Jia Fu
+    // taken from https://github.com/jiafulow/L1TMuonSimulationsMar2017/blob/master/Analyzers/plugins/NtupleMaker.cc#L602
+    auto get_pattern = [](const auto& hit) {
+      int pattern = 0;
+      if (hit.Subsystem() == TriggerPrimitive::kCSC) {
+        pattern = hit.Pattern();
+      } else if (hit.Subsystem() == TriggerPrimitive::kDT) {
+        pattern = hit.Sync_err();  // syncErr was hacked to store rpc bit
+      }
+      return pattern;
+    };
+     
+    auto get_time = [](const auto& hit) {
+      float time = hit.Time();
+      return static_cast<int>(std::round(time*16/25));  // integer unit is 25ns/16 (4-bit)
+    };
+
+    auto isFront_detail = [](int subsystem, int station, int ring, int chamber, int subsector) {
+      bool result = false;
+  
+      if (subsystem == TriggerPrimitive::kCSC) {
+        bool isOverlapping = !(station == 1 && ring == 3);
+        // not overlapping means back
+        if(isOverlapping)
+        {
+          bool isEven = (chamber % 2 == 0);
+          // odd chambers are bolted to the iron, which faces
+          // forward in 1&2, backward in 3&4, so...
+          result = (station < 3) ? isEven : !isEven;
+        }
+      } else if (subsystem == TriggerPrimitive::kRPC) {
+        //// 10 degree rings have even subsectors in front
+        //// 20 degree rings have odd subsectors in front
+        //bool is_10degree = !((station == 3 || station == 4) && (ring == 1));
+        //bool isEven = (subsector % 2 == 0);
+        //result = (is_10degree) ? isEven : !isEven;
+  
+        // Use the equivalent CSC chamber F/R
+        bool isEven = (chamber % 2 == 0);
+        result = (station < 3) ? isEven : !isEven;
+      } else if (subsystem == TriggerPrimitive::kGEM) {
+        //
+        result = (chamber % 2 == 0);
+      } else if (subsystem == TriggerPrimitive::kME0) {
+        //
+        result = (chamber % 2 == 0);
+      } else if (subsystem == TriggerPrimitive::kDT) {
+        //
+        result = (chamber % 2 == 0);
+      }
+      return result;
+    };
+
+    auto isFront = [&](const auto& hit) {
+      return isFront_detail(hit.Subsystem(), hit.Station(), hit.Ring(), hit.Chamber(), (hit.Subsystem() == TriggerPrimitive::kRPC ? hit.Subsector_RPC() : hit.Subsector()));
+    };
 
     // --------------------------------------------------------------
 
@@ -702,6 +831,21 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         L1_TkMu_pt_  . push_back(tkmu.pt());
         L1_TkMu_eta_ . push_back(tkmu.eta());
         L1_TkMu_phi_ . push_back(tkmu.phi());
+
+        // get the associated track and get properties
+        // const edm::Ptr< L1TTTrackType >& getTrkPtr() const
+        auto matchedTrk =  tkmu.getTrkPtr();
+        int l1tttq = (matchedTrk->getRInv(nTrkPars) > 0 ? 1 : -1);
+        L1_TkMu_charge_  . push_back(l1tttq);
+        L1_TkMu_p_       . push_back(matchedTrk->getMomentum(nTrkPars).mag());
+        L1_TkMu_z_       . push_back(matchedTrk->getPOCA().z());
+        L1_TkMu_chi2_    . push_back(matchedTrk->getChi2(nTrkPars));
+        L1_TkMu_nstubs_  . push_back(matchedTrk->getStubRefs().size());
+
+        L1_TkMu_mudetID_ . push_back(tkmu.muonDetector());
+
+        // this is true, verified
+        // cout << tkmu.pt() << " " << matchedTrk->getMomentum(nTrkPars).perp() << endl;
     }
 
     /// trk + stubs
@@ -711,8 +855,20 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         L1_TkMuStub_pt_  . push_back(tkmustub.pt());
         L1_TkMuStub_eta_ . push_back(tkmustub.eta());
         L1_TkMuStub_phi_ . push_back(tkmustub.phi());
-    }
 
+        // get the associated track and get properties
+        // const edm::Ptr< L1TTTrackType >& getTrkPtr() const
+        auto matchedTrk =  tkmustub.getTrkPtr();
+        int l1tttq = (matchedTrk->getRInv(nTrkPars) > 0 ? 1 : -1);
+        L1_TkMuStub_charge_  . push_back(l1tttq);
+        L1_TkMuStub_p_       . push_back(matchedTrk->getMomentum(nTrkPars).mag());
+        L1_TkMuStub_z_       . push_back(matchedTrk->getPOCA().z());
+        L1_TkMuStub_chi2_    . push_back(matchedTrk->getChi2(nTrkPars));
+        L1_TkMuStub_nstubs_  . push_back(matchedTrk->getStubRefs().size());
+
+        // this is true, verified
+        // cout << tkmustub.pt() << " " << matchedTrk->getMomentum(nTrkPars).perp() << endl;
+    }
 
     /// hits
     for (const auto& hit : l1muhits)
@@ -728,6 +884,17 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         mu_hit_bx_         . push_back(hit.BX());
         mu_hit_type_       . push_back(hit.Subsystem());
         mu_hit_neighbor_   . push_back(hit.Neighbor());
+        //
+        mu_hit_strip_      . push_back(hit.Strip());
+        mu_hit_wire_       . push_back(hit.Wire());
+        mu_hit_roll_       . push_back(hit.Roll());
+        mu_hit_quality_    . push_back(hit.Quality());
+        mu_hit_pattern_    . push_back(get_pattern(hit));  // modified
+        mu_hit_bend_       . push_back(hit.Bend());
+        mu_hit_time_       . push_back(get_time(hit));     // modified
+        mu_hit_fr_         . push_back(isFront(hit));
+        mu_hit_emtf_phi_   . push_back(hit.Phi_fp());
+        mu_hit_emtf_theta_ . push_back(hit.Theta_fp());
         //
         mu_hit_sim_phi_    . push_back(hit.Phi_sim());
         mu_hit_sim_theta_  . push_back(hit.Theta_sim());
