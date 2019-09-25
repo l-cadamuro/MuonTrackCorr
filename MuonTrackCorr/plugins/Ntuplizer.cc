@@ -23,6 +23,8 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
 
+#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
+
 #include "TTree.h"
 
 using namespace edm;
@@ -56,6 +58,8 @@ class Ntuplizer : public edm::EDAnalyzer {
         const edm::EDGetTokenT< std::vector< reco::GenParticle > > genPartToken;
         const edm::EDGetTokenT< L1TkMuonParticleCollection > tkMuToken;
         const edm::EDGetTokenT< L1TkMuonParticleCollection > tkMuStubToken;
+        const edm::EDGetTokenT< RegionalMuonCandBxCollection > muBarrelToken;
+        const edm::EDGetTokenT< RegionalMuonCandBxCollection > muOvrlapToken;
 
         const static int nTrkPars = 4; // number of parameters in the trk fit -- eventually to be made configurable
 
@@ -85,6 +89,18 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<int>   EMTF_mu_hitref3_;
         std::vector<int>   EMTF_mu_hitref4_;
         // std::vector<float> EMTF_mu_e_;
+
+        unsigned int n_barrel_mu_;
+        std::vector<float> barrel_mu_pt_;
+        std::vector<float> barrel_mu_eta_;
+        std::vector<float> barrel_mu_phi_;
+        std::vector<int>   barrel_mu_charge_;
+
+        unsigned int n_ovrlap_mu_;
+        std::vector<float> ovrlap_mu_pt_;
+        std::vector<float> ovrlap_mu_eta_;
+        std::vector<float> ovrlap_mu_phi_;
+        std::vector<int>   ovrlap_mu_charge_;
 
         // hits of a EMTF track
         // std::vector<int>   EMTF_mu_h1_type_;
@@ -146,8 +162,8 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float  >  mu_hit_sim_phi_;
         std::vector<float  >  mu_hit_sim_theta_;
         std::vector<float  >  mu_hit_sim_eta_;
-        // std::vector<float  >  mu_hit_sim_r_; // seems not there in the CMSSW emulator data format
-        // std::vector<float  >  mu_hit_sim_z_; // seems not there in the CMSSW emulator data format
+        std::vector<float  >  mu_hit_sim_r_; // seems not there in the CMSSW emulator data format
+        std::vector<float  >  mu_hit_sim_z_; // seems not there in the CMSSW emulator data format
 };
 
 void Ntuplizer::initialize()
@@ -167,6 +183,19 @@ void Ntuplizer::initialize()
     EMTF_mu_hitref2_.clear();
     EMTF_mu_hitref3_.clear();
     EMTF_mu_hitref4_.clear();
+
+    n_barrel_mu_ = 0;
+    barrel_mu_pt_.clear();
+    barrel_mu_eta_.clear();
+    barrel_mu_phi_.clear();
+    barrel_mu_charge_.clear();
+
+    n_ovrlap_mu_ = 0;
+    ovrlap_mu_pt_.clear();
+    ovrlap_mu_eta_.clear();
+    ovrlap_mu_phi_.clear();
+    ovrlap_mu_charge_.clear();
+
 
     n_L1TT_trk_ = 0;
     L1TT_trk_pt_.clear();
@@ -219,20 +248,23 @@ void Ntuplizer::initialize()
     mu_hit_sim_phi_.clear();
     mu_hit_sim_theta_.clear();
     mu_hit_sim_eta_.clear();
-    // mu_hit_sim_r_.clear();
-    // mu_hit_sim_z_.clear();
+    mu_hit_sim_r_.clear();
+    mu_hit_sim_z_.clear();
 
 }
 
 Ntuplizer::Ntuplizer(const edm::ParameterSet& iConfig):
     // muTokenPos(consumes< MuonBxCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonPosInputTag"))),
     // muTokenNeg(consumes< MuonBxCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonNegInputTag"))),
-    muToken       (consumes< EMTFTrackCollection >         (iConfig.getParameter<edm::InputTag>("L1MuonEMTFInputTag"))),
-    mu_hitToken   (consumes< EMTFHitCollection >           (iConfig.getParameter<edm::InputTag>("L1EMTFHitInputTag"))),
-    trackToken    (consumes< L1TTTrackCollectionType >     (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-    genPartToken  (consumes< GenParticleCollection >       (iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
-    tkMuToken     (consumes< L1TkMuonParticleCollection >  (iConfig.getParameter<edm::InputTag>("TkMuInputTag"))),
-    tkMuStubToken (consumes< L1TkMuonParticleCollection >  (iConfig.getParameter<edm::InputTag>("TkMuStubInputTag")))
+    muToken       (consumes< EMTFTrackCollection >          (iConfig.getParameter<edm::InputTag>("L1MuonEMTFInputTag"))),
+    mu_hitToken   (consumes< EMTFHitCollection >            (iConfig.getParameter<edm::InputTag>("L1EMTFHitInputTag"))),
+    trackToken    (consumes< L1TTTrackCollectionType >      (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+    genPartToken  (consumes< GenParticleCollection >        (iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
+    tkMuToken     (consumes< L1TkMuonParticleCollection >   (iConfig.getParameter<edm::InputTag>("TkMuInputTag"))),
+    tkMuStubToken (consumes< L1TkMuonParticleCollection >   (iConfig.getParameter<edm::InputTag>("TkMuStubInputTag"))),
+    muBarrelToken (consumes< RegionalMuonCandBxCollection > (iConfig.getParameter<edm::InputTag>("L1BarrelMuonInputTag"))),
+    muOvrlapToken (consumes< RegionalMuonCandBxCollection > (iConfig.getParameter<edm::InputTag>("L1OverlapMuonInputTag")))
+
 {
     save_all_trks_    =  iConfig.getParameter<bool>("save_all_L1TTT");
     prompt_mu_only_   =  iConfig.getParameter<bool>("prompt_mu_only");
@@ -264,6 +296,19 @@ void Ntuplizer::beginJob()
     tree_->Branch("EMTF_mu_hitref2", &EMTF_mu_hitref2_);
     tree_->Branch("EMTF_mu_hitref3", &EMTF_mu_hitref3_);
     tree_->Branch("EMTF_mu_hitref4", &EMTF_mu_hitref4_);
+
+
+    tree_->Branch("n_barrel_mu",      &n_barrel_mu_);
+    tree_->Branch("barrel_mu_pt",     &barrel_mu_pt_);
+    tree_->Branch("barrel_mu_eta",    &barrel_mu_eta_);
+    tree_->Branch("barrel_mu_phi",    &barrel_mu_phi_);
+    tree_->Branch("barrel_mu_charge", &barrel_mu_charge_);
+
+    tree_->Branch("n_ovrlap_mu",      &n_ovrlap_mu_);
+    tree_->Branch("ovrlap_mu_pt",     &ovrlap_mu_pt_);
+    tree_->Branch("ovrlap_mu_eta",    &ovrlap_mu_eta_);
+    tree_->Branch("ovrlap_mu_phi",    &ovrlap_mu_phi_);
+    tree_->Branch("ovrlap_mu_charge", &ovrlap_mu_charge_);
 
     // tree_->Branch("EMTF_mu_e", &EMTF_mu_e_);
 
@@ -313,6 +358,9 @@ void Ntuplizer::beginJob()
     tree_->Branch("mu_hit_sim_phi", &mu_hit_sim_phi_);
     tree_->Branch("mu_hit_sim_theta", &mu_hit_sim_theta_);
     tree_->Branch("mu_hit_sim_eta", &mu_hit_sim_eta_);
+    tree_->Branch("mu_hit_sim_r", &mu_hit_sim_r_);
+    tree_->Branch("mu_hit_sim_z", &mu_hit_sim_z_);
+
     //
     if (save_tau_3mu_)
     {
@@ -403,6 +451,15 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<EMTFHitCollection> l1muhitsH;
     iEvent.getByToken(mu_hitToken, l1muhitsH);  
     const EMTFHitCollection& l1muhits = (*l1muhitsH.product());
+
+
+    edm::Handle<RegionalMuonCandBxCollection> l1musBarrelH;
+    iEvent.getByToken(muBarrelToken, l1musBarrelH);  
+    const RegionalMuonCandBxCollection& l1musBarrel = (*l1musBarrelH.product());
+
+    edm::Handle<RegionalMuonCandBxCollection> l1musOvrlapH;
+    iEvent.getByToken(muOvrlapToken, l1musOvrlapH);  
+    const RegionalMuonCandBxCollection& l1musOvrlap = (*l1musOvrlapH.product());
 
     // the L1Tracks
     edm::Handle<L1TTTrackCollectionType> l1tksH;
@@ -608,6 +665,35 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         // cout << "Number of hits in this track " << l1muit->Hits().size() << "  -- trk qual " << l1muit->Mode() << endl;
     }
 
+    // barrel muons
+    // NB: convertions taken from https://github.com/cms-l1t-offline/cmssw/blob/l1t-phase2-v2.22.1-CMSSW_10_6_1_patch2/L1Trigger/L1TTrackMatch/plugins/L1TkMuonProducer.cc
+    for (auto l1mubarrit = l1musBarrel.begin(0); l1mubarrit != l1musBarrel.end(0); ++l1mubarrit)
+    {
+        ++n_barrel_mu_;
+        
+        barrel_mu_pt_.push_back(l1mubarrit->hwPt() * 0.5);
+        barrel_mu_eta_.push_back(l1mubarrit->hwEta() * 0.010875);
+        float this_l1mu_phi = MicroGMTConfiguration::calcGlobalPhi( l1mubarrit->hwPhi(), l1mubarrit->trackFinderType(), l1mubarrit->processor() )*2*M_PI/576.;
+        barrel_mu_phi_.push_back(this_l1mu_phi);
+        int hwsign = l1mubarrit->hwSign();
+        int charge = (hwsign == 0 ? 1 : -1); // charge sign bit (charge = (-1)^(sign))
+        barrel_mu_charge_.push_back(charge);
+    }
+
+    // overlap muons
+    for (auto l1muovrlit = l1musOvrlap.begin(0); l1muovrlit != l1musOvrlap.end(0); ++l1muovrlit)
+    {
+        ++n_ovrlap_mu_;
+        
+        ovrlap_mu_pt_.push_back(l1muovrlit->hwPt() * 0.5);
+        ovrlap_mu_eta_.push_back(l1muovrlit->hwEta() * 0.010875);
+        float this_l1mu_phi = MicroGMTConfiguration::calcGlobalPhi( l1muovrlit->hwPhi(), l1muovrlit->trackFinderType(), l1muovrlit->processor() )*2*M_PI/576.;
+        ovrlap_mu_phi_.push_back(this_l1mu_phi);
+        int hwsign = l1muovrlit->hwSign();
+        int charge =  (hwsign == 0 ? 1 : -1); // charge sign bit (charge = (-1)^(sign))
+        ovrlap_mu_charge_.push_back(charge);
+    }
+
     /// mu + trks
     // cout << "--- this event has " << tkmus.size() << " muons" << endl;
     for (const auto& tkmu : tkmus)
@@ -646,8 +732,8 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         mu_hit_sim_phi_    . push_back(hit.Phi_sim());
         mu_hit_sim_theta_  . push_back(hit.Theta_sim());
         mu_hit_sim_eta_    . push_back(hit.Eta_sim());
-        // mu_hit_sim_r_      . push_back(hit.Rho_sim());
-        // mu_hit_sim_z_      . push_back(hit.Z_sim());
+        mu_hit_sim_r_      . push_back(hit.Rho_sim());
+        mu_hit_sim_z_      . push_back(hit.Z_sim());
     }
 
     tree_->Fill();
