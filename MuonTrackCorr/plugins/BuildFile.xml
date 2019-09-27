@@ -12,4 +12,5 @@
 <use name="DataFormats/Math" />
 <use name="DataFormats/HepMCCandidate" />
 <use name="L1Trigger/L1TMuon" />
+<use name="SimTracker/TrackTriggerAssociation" />
 <flags EDM_PLUGIN="1"/>

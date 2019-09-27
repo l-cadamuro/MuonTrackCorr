@@ -24,6 +24,8 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
 
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
+#include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
+
 
 #include "TTree.h"
 
@@ -66,6 +68,8 @@ class Ntuplizer : public edm::EDAnalyzer {
         const edm::EDGetTokenT< L1TkMuonParticleCollection > tkMuStubToken;
         const edm::EDGetTokenT< RegionalMuonCandBxCollection > muBarrelToken;
         const edm::EDGetTokenT< RegionalMuonCandBxCollection > muOvrlapToken;
+        const edm::EDGetTokenT< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > trackTruthToken;
+
 
         const static int nTrkPars = 4; // number of parameters in the trk fit -- eventually to be made configurable
 
@@ -118,11 +122,17 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> L1TT_trk_pt_;
         std::vector<float> L1TT_trk_eta_;
         std::vector<float> L1TT_trk_phi_;
-        std::vector<int> L1TT_trk_charge_;
+        std::vector<int>   L1TT_trk_charge_;
         std::vector<float> L1TT_trk_p_;
         std::vector<float> L1TT_trk_z_;
         std::vector<float> L1TT_trk_chi2_;
-        std::vector<int> L1TT_trk_nstubs_;
+        std::vector<int>   L1TT_trk_nstubs_;
+        std::vector<int>   L1TT_trk_gen_qual_;
+        std::vector<int>   L1TT_trk_gen_TP_ID_;
+        std::vector<float> L1TT_trk_gen_TP_pt_;
+        std::vector<float> L1TT_trk_gen_TP_eta_;
+        std::vector<float> L1TT_trk_gen_TP_phi_;
+        std::vector<float> L1TT_trk_gen_TP_m_;
 
         unsigned int n_L1_TkMu_;
         std::vector<float> L1_TkMu_pt_;
@@ -234,6 +244,12 @@ void Ntuplizer::initialize()
     L1TT_trk_z_.clear();
     L1TT_trk_chi2_.clear();
     L1TT_trk_nstubs_.clear();
+    L1TT_trk_gen_qual_.clear();
+    L1TT_trk_gen_TP_ID_.clear();
+    L1TT_trk_gen_TP_pt_.clear();
+    L1TT_trk_gen_TP_eta_.clear();
+    L1TT_trk_gen_TP_phi_.clear();
+    L1TT_trk_gen_TP_m_.clear();
 
     n_L1_TkMu_ = 0;
     L1_TkMu_pt_.clear();
@@ -306,14 +322,15 @@ void Ntuplizer::initialize()
 Ntuplizer::Ntuplizer(const edm::ParameterSet& iConfig):
     // muTokenPos(consumes< MuonBxCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonPosInputTag"))),
     // muTokenNeg(consumes< MuonBxCollection >           (iConfig.getParameter<edm::InputTag>("L1MuonNegInputTag"))),
-    muToken       (consumes< EMTFTrackCollection >          (iConfig.getParameter<edm::InputTag>("L1MuonEMTFInputTag"))),
-    mu_hitToken   (consumes< EMTFHitCollection >            (iConfig.getParameter<edm::InputTag>("L1EMTFHitInputTag"))),
-    trackToken    (consumes< L1TTTrackCollectionType >      (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-    genPartToken  (consumes< GenParticleCollection >        (iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
-    tkMuToken     (consumes< L1TkMuonParticleCollection >   (iConfig.getParameter<edm::InputTag>("TkMuInputTag"))),
-    tkMuStubToken (consumes< L1TkMuonParticleCollection >   (iConfig.getParameter<edm::InputTag>("TkMuStubInputTag"))),
-    muBarrelToken (consumes< RegionalMuonCandBxCollection > (iConfig.getParameter<edm::InputTag>("L1BarrelMuonInputTag"))),
-    muOvrlapToken (consumes< RegionalMuonCandBxCollection > (iConfig.getParameter<edm::InputTag>("L1OverlapMuonInputTag")))
+    muToken         (consumes< EMTFTrackCollection >                      (iConfig.getParameter<edm::InputTag>("L1MuonEMTFInputTag"))),
+    mu_hitToken     (consumes< EMTFHitCollection >                        (iConfig.getParameter<edm::InputTag>("L1EMTFHitInputTag"))),
+    trackToken      (consumes< L1TTTrackCollectionType >                  (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+    genPartToken    (consumes< GenParticleCollection >                    (iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
+    tkMuToken       (consumes< L1TkMuonParticleCollection >               (iConfig.getParameter<edm::InputTag>("TkMuInputTag"))),
+    tkMuStubToken   (consumes< L1TkMuonParticleCollection >               (iConfig.getParameter<edm::InputTag>("TkMuStubInputTag"))),
+    muBarrelToken   (consumes< RegionalMuonCandBxCollection >             (iConfig.getParameter<edm::InputTag>("L1BarrelMuonInputTag"))),
+    muOvrlapToken   (consumes< RegionalMuonCandBxCollection >             (iConfig.getParameter<edm::InputTag>("L1OverlapMuonInputTag"))),
+    trackTruthToken (consumes< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > >  (iConfig.getParameter<edm::InputTag>("L1TrackTruthInputTag")))
 
 {
     save_all_trks_    =  iConfig.getParameter<bool>("save_all_L1TTT");
@@ -371,6 +388,12 @@ void Ntuplizer::beginJob()
     tree_->Branch("L1TT_trk_z", &L1TT_trk_z_);
     tree_->Branch("L1TT_trk_chi2", &L1TT_trk_chi2_);
     tree_->Branch("L1TT_trk_nstubs", &L1TT_trk_nstubs_);
+    tree_->Branch("L1TT_trk_gen_qual",   &L1TT_trk_gen_qual_);
+    tree_->Branch("L1TT_trk_gen_TP_ID",  &L1TT_trk_gen_TP_ID_);
+    tree_->Branch("L1TT_trk_gen_TP_pt",  &L1TT_trk_gen_TP_pt_);
+    tree_->Branch("L1TT_trk_gen_TP_eta", &L1TT_trk_gen_TP_eta_);
+    tree_->Branch("L1TT_trk_gen_TP_phi", &L1TT_trk_gen_TP_phi_);
+    tree_->Branch("L1TT_trk_gen_TP_m",   &L1TT_trk_gen_TP_m_);
 
     //
     tree_->Branch("n_L1_TkMu", &n_L1_TkMu_);
@@ -595,6 +618,10 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(trackToken, l1tksH);
     const L1TTTrackCollectionType& l1tks = (*l1tksH.product());
 
+    edm::Handle<TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > l1tksTruthH;
+    iEvent.getByToken(trackTruthToken, l1tksTruthH);
+    const auto &l1tkstruth = (*l1tksTruthH.product());
+
     // the gen particles
     edm::Handle<GenParticleCollection> genpartH;
     iEvent.getByToken(genPartToken, genpartH);
@@ -728,8 +755,11 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
     // n_L1TT_trk_ = l1tks.size();
+
+    const auto &truthmap = l1tkstruth.getTTTrackToTrackingParticleMap();
     for (auto l1trkit = l1tks.begin(); l1trkit != l1tks.end(); ++l1trkit)
     {
+        int itrk = std::distance(l1tks.begin(), l1trkit);
         ++n_L1TT_trk_;
         if (save_all_trks_) // keep the branch structure but do not fill vectors
         {
@@ -742,7 +772,70 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             L1TT_trk_z_     .push_back(l1trkit->getPOCA().z());
             L1TT_trk_chi2_  .push_back(l1trkit->getChi2(nTrkPars));
             L1TT_trk_nstubs_.push_back(l1trkit->getStubRefs().size());
+
+            const edm::Ptr<L1TTTrackType> trkEdmPtr(l1tksH, itrk);
+            
+            // NOTE: according to this ref: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SLHCTrackerTriggerSWTools#TTTrack
+            // one track must be either genuine, combinatoric or unknown, but I saw in this sample:
+            // /store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU300_106X_upgrade2023_realistic_v3_ext1-v2/270000/A30C2FA1-EE84-494E-8314-77B22222DCFF.root
+            // cases where all the three flags are 0
+            // so save this bitwise at the right index
+            // const edm::Ptr<L1TTTrackType> trkEdmPtr(l1tksH, itrk);
+            // int trkgenqual = -1;
+            // if (l1tkstruth.isGenuine(trkEdmPtr))
+            //     trkgenqual = 0;
+            // else if (l1tkstruth.isCombinatoric(trkEdmPtr))
+            //     trkgenqual = 1;
+            // else if (l1tkstruth.isUnknown(trkEdmPtr))
+            //     trkgenqual = 2;
+            //
+            // L1TT_trk_gen_qual_.push_back(trkgenqual);
+            //
+            // if (trkgenqual == -1){
+            //     cout << itrk << "isGenuine ? "      << l1tkstruth.isGenuine(trkEdmPtr)      << endl;
+            //     cout << itrk << "isCombinatoric ? " << l1tkstruth.isCombinatoric(trkEdmPtr) << endl;
+            //     cout << itrk << "isUnknown ? "      << l1tkstruth.isUnknown(trkEdmPtr)      << endl;
+            // }
+
+            int trkgenqual = 0;
+            if (l1tkstruth.isGenuine(trkEdmPtr))
+               trkgenqual |= (1 << 0);
+
+            if (l1tkstruth.isCombinatoric(trkEdmPtr))
+               trkgenqual |= (1 << 1);
+
+            if (l1tkstruth.isUnknown(trkEdmPtr))
+               trkgenqual |= (1 << 2);
+
+            L1TT_trk_gen_qual_.push_back(trkgenqual);
+
+
+            bool has_matched_trk = (truthmap.find(trkEdmPtr) != truthmap.end());
+
+            int   gen_TP_ID   = -999;
+            float gen_TP_pt   = -999.; 
+            float gen_TP_eta  = -999.;  
+            float gen_TP_phi  = -999.;  
+            float gen_TP_m    = -999.; 
+            
+            if (has_matched_trk)
+            {
+                const auto matchedTP = truthmap.at(trkEdmPtr);
+                gen_TP_ID  = matchedTP->pdgId() ;
+                gen_TP_pt  = matchedTP->p4().pt() ;
+                gen_TP_eta = matchedTP->p4().eta() ;
+                gen_TP_phi = matchedTP->p4().phi() ;
+                gen_TP_m   = matchedTP->p4().mass() ;
+            }
+
+            L1TT_trk_gen_TP_ID_  . push_back (gen_TP_ID);
+            L1TT_trk_gen_TP_pt_  . push_back (gen_TP_pt);
+            L1TT_trk_gen_TP_eta_ . push_back (gen_TP_eta);
+            L1TT_trk_gen_TP_phi_ . push_back (gen_TP_phi);
+            L1TT_trk_gen_TP_m_   . push_back (gen_TP_m);
+
         }
+        // cout << " --------------" << endl;
         /*
         // check to access components info
         auto stubRefs = l1trkit->getStubRefs();
@@ -755,6 +848,10 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         */
 
     }
+
+    // cout << l1tks.size() << " " << l1tkstruth.size() << endl;
+    // if (l1tks.size() != l1tkstruth.size() )
+    //     cout << "AAAAAARGH" << endl;
 
     // for (auto l1muit = l1musPos.begin(0); l1muit != l1musPos.end(0); ++l1muit)
     // {
