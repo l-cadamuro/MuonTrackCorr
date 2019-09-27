@@ -144,6 +144,14 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> L1_TkMu_chi2_;
         std::vector<int>   L1_TkMu_nstubs_;
         std::vector<int>   L1_TkMu_mudetID_;
+        std::vector<int>   L1_TkMu_gen_qual_;
+        std::vector<int>   L1_TkMu_gen_TP_ID_;
+        std::vector<float> L1_TkMu_gen_TP_pt_;
+        std::vector<float> L1_TkMu_gen_TP_eta_;
+        std::vector<float> L1_TkMu_gen_TP_phi_;
+        std::vector<float> L1_TkMu_gen_TP_m_;
+
+
         // std::vector<float> L1_TkMu_e_;
         // std::vector<int> L1_TkMu_charge_;
 
@@ -156,6 +164,12 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> L1_TkMuStub_z_;
         std::vector<float> L1_TkMuStub_chi2_;
         std::vector<int>   L1_TkMuStub_nstubs_;
+        std::vector<int>   L1_TkMuStub_gen_qual_;
+        std::vector<int>   L1_TkMuStub_gen_TP_ID_;
+        std::vector<float> L1_TkMuStub_gen_TP_pt_;
+        std::vector<float> L1_TkMuStub_gen_TP_eta_;
+        std::vector<float> L1_TkMuStub_gen_TP_phi_;
+        std::vector<float> L1_TkMuStub_gen_TP_m_;
 
         unsigned int n_gen_mu_;
         std::vector<float> gen_mu_pt_;
@@ -261,7 +275,12 @@ void Ntuplizer::initialize()
     L1_TkMu_chi2_.clear();
     L1_TkMu_nstubs_.clear();
     L1_TkMu_mudetID_.clear();
-    // L1_TkMu_charge_.clear();
+    L1_TkMu_gen_qual_.clear();
+    L1_TkMu_gen_TP_ID_.clear();
+    L1_TkMu_gen_TP_pt_.clear();
+    L1_TkMu_gen_TP_eta_.clear();
+    L1_TkMu_gen_TP_phi_.clear();
+    L1_TkMu_gen_TP_m_.clear();
 
     n_L1_TkMuStub_ = 0;
     L1_TkMuStub_pt_.clear();
@@ -272,6 +291,12 @@ void Ntuplizer::initialize()
     L1_TkMuStub_z_.clear();
     L1_TkMuStub_chi2_.clear();
     L1_TkMuStub_nstubs_.clear();
+    L1_TkMuStub_gen_qual_.clear();
+    L1_TkMuStub_gen_TP_ID_.clear();
+    L1_TkMuStub_gen_TP_pt_.clear();
+    L1_TkMuStub_gen_TP_eta_.clear();
+    L1_TkMuStub_gen_TP_phi_.clear();
+    L1_TkMuStub_gen_TP_m_.clear();
 
     n_gen_mu_   = 0;
     gen_mu_pt_.clear();
@@ -406,6 +431,12 @@ void Ntuplizer::beginJob()
     tree_->Branch("L1_TkMu_chi2", &L1_TkMu_chi2_);
     tree_->Branch("L1_TkMu_nstubs", &L1_TkMu_nstubs_);
     tree_->Branch("L1_TkMu_mudetID", &L1_TkMu_mudetID_);
+    tree_->Branch("L1_TkMu_gen_qual", &L1_TkMu_gen_qual_);
+    tree_->Branch("L1_TkMu_gen_TP_ID", &L1_TkMu_gen_TP_ID_);
+    tree_->Branch("L1_TkMu_gen_TP_pt", &L1_TkMu_gen_TP_pt_);
+    tree_->Branch("L1_TkMu_gen_TP_eta", &L1_TkMu_gen_TP_eta_);
+    tree_->Branch("L1_TkMu_gen_TP_phi", &L1_TkMu_gen_TP_phi_);
+    tree_->Branch("L1_TkMu_gen_TP_m", &L1_TkMu_gen_TP_m_);
 
     tree_->Branch("n_L1_TkMuStub", &n_L1_TkMuStub_);
     tree_->Branch("L1_TkMuStub_pt", &L1_TkMuStub_pt_);
@@ -416,6 +447,12 @@ void Ntuplizer::beginJob()
     tree_->Branch("L1_TkMuStub_z", &L1_TkMuStub_z_);
     tree_->Branch("L1_TkMuStub_chi2", &L1_TkMuStub_chi2_);
     tree_->Branch("L1_TkMuStub_nstubs", &L1_TkMuStub_nstubs_);
+    tree_->Branch("L1_TkMuStub_gen_qual", &L1_TkMuStub_gen_qual_);
+    tree_->Branch("L1_TkMuStub_gen_TP_ID", &L1_TkMuStub_gen_TP_ID_);
+    tree_->Branch("L1_TkMuStub_gen_TP_pt", &L1_TkMuStub_gen_TP_pt_);
+    tree_->Branch("L1_TkMuStub_gen_TP_eta", &L1_TkMuStub_gen_TP_eta_);
+    tree_->Branch("L1_TkMuStub_gen_TP_phi", &L1_TkMuStub_gen_TP_phi_);
+    tree_->Branch("L1_TkMuStub_gen_TP_m", &L1_TkMuStub_gen_TP_m_);
 
     tree_->Branch("n_gen_mu", &n_gen_mu_);
     tree_->Branch("gen_mu_pt", &gen_mu_pt_);
@@ -774,7 +811,7 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             L1TT_trk_nstubs_.push_back(l1trkit->getStubRefs().size());
 
             const edm::Ptr<L1TTTrackType> trkEdmPtr(l1tksH, itrk);
-            
+
             // NOTE: according to this ref: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SLHCTrackerTriggerSWTools#TTTrack
             // one track must be either genuine, combinatoric or unknown, but I saw in this sample:
             // /store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU300_106X_upgrade2023_realistic_v3_ext1-v2/270000/A30C2FA1-EE84-494E-8314-77B22222DCFF.root
@@ -941,6 +978,45 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         L1_TkMu_mudetID_ . push_back(tkmu.muonDetector());
 
+        // matched gen trk info
+
+        int trkgenqual = 0;
+        if (l1tkstruth.isGenuine(matchedTrk))
+           trkgenqual |= (1 << 0);
+
+        if (l1tkstruth.isCombinatoric(matchedTrk))
+           trkgenqual |= (1 << 1);
+
+        if (l1tkstruth.isUnknown(matchedTrk))
+           trkgenqual |= (1 << 2);
+
+        L1_TkMu_gen_qual_.push_back(trkgenqual);
+
+
+        bool has_matched_trk = (truthmap.find(matchedTrk) != truthmap.end());
+
+        int   gen_TP_ID   = -999;
+        float gen_TP_pt   = -999.; 
+        float gen_TP_eta  = -999.;  
+        float gen_TP_phi  = -999.;  
+        float gen_TP_m    = -999.; 
+        
+        if (has_matched_trk)
+        {
+            const auto matchedTP = truthmap.at(matchedTrk);
+            gen_TP_ID  = matchedTP->pdgId() ;
+            gen_TP_pt  = matchedTP->p4().pt() ;
+            gen_TP_eta = matchedTP->p4().eta() ;
+            gen_TP_phi = matchedTP->p4().phi() ;
+            gen_TP_m   = matchedTP->p4().mass() ;
+        }
+
+        L1_TkMu_gen_TP_ID_  . push_back (gen_TP_ID);
+        L1_TkMu_gen_TP_pt_  . push_back (gen_TP_pt);
+        L1_TkMu_gen_TP_eta_ . push_back (gen_TP_eta);
+        L1_TkMu_gen_TP_phi_ . push_back (gen_TP_phi);
+        L1_TkMu_gen_TP_m_   . push_back (gen_TP_m);
+
         // this is true, verified
         // cout << tkmu.pt() << " " << matchedTrk->getMomentum(nTrkPars).perp() << endl;
     }
@@ -965,6 +1041,47 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
         // this is true, verified
         // cout << tkmustub.pt() << " " << matchedTrk->getMomentum(nTrkPars).perp() << endl;
+
+        // matched gen trk info
+
+        int trkgenqual = 0;
+        if (l1tkstruth.isGenuine(matchedTrk))
+           trkgenqual |= (1 << 0);
+
+        if (l1tkstruth.isCombinatoric(matchedTrk))
+           trkgenqual |= (1 << 1);
+
+        if (l1tkstruth.isUnknown(matchedTrk))
+           trkgenqual |= (1 << 2);
+
+        L1_TkMuStub_gen_qual_.push_back(trkgenqual);
+
+
+        bool has_matched_trk = (truthmap.find(matchedTrk) != truthmap.end());
+
+        int   gen_TP_ID   = -999;
+        float gen_TP_pt   = -999.; 
+        float gen_TP_eta  = -999.;  
+        float gen_TP_phi  = -999.;  
+        float gen_TP_m    = -999.; 
+        
+        if (has_matched_trk)
+        {
+            const auto matchedTP = truthmap.at(matchedTrk);
+            gen_TP_ID  = matchedTP->pdgId() ;
+            gen_TP_pt  = matchedTP->p4().pt() ;
+            gen_TP_eta = matchedTP->p4().eta() ;
+            gen_TP_phi = matchedTP->p4().phi() ;
+            gen_TP_m   = matchedTP->p4().mass() ;
+        }
+
+        L1_TkMuStub_gen_TP_ID_  . push_back (gen_TP_ID);
+        L1_TkMuStub_gen_TP_pt_  . push_back (gen_TP_pt);
+        L1_TkMuStub_gen_TP_eta_ . push_back (gen_TP_eta);
+        L1_TkMuStub_gen_TP_phi_ . push_back (gen_TP_phi);
+        L1_TkMuStub_gen_TP_m_   . push_back (gen_TP_m);
+
+
     }
 
     /// hits
