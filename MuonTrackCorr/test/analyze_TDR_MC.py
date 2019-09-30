@@ -82,8 +82,8 @@ else:
     #'/store/mc/PhaseIITDRSpring19DR/Nu_E10-pythia8-gun/GEN-SIM-DIGI-RAW/PU200_106X_upgrade2023_realistic_v3-v3/70001/1622E6AA-FCDD-9A4F-8F6A-104DA786EE03.root'
     # '/store/mc/PhaseIITDRSpring19DR/TauTo3Mu_TuneCP5_14TeV-pythia8/GEN-SIM-DIGI-RAW/NoPU_106X_upgrade2023_realistic_v3-v2/50000/13BBBA96-8DCD-184C-8B25-98EC57A1EC63.root',
     ### single mu for test
-    # 'file:/uscms/home/lcadamur/nobackup/EDM_MuGun_Pu0_TDR_MC/7F4AF09D-D268-C74E-B06C-259D965857BE.root',
-    '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU300_106X_upgrade2023_realistic_v3_ext1-v2/270000/A30C2FA1-EE84-494E-8314-77B22222DCFF.root',
+    'file:/uscms/home/lcadamur/nobackup/EDM_MuGun_Pu0_TDR_MC/7F4AF09D-D268-C74E-B06C-259D965857BE.root',
+    # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/PU300_106X_upgrade2023_realistic_v3_ext1-v2/270000/A30C2FA1-EE84-494E-8314-77B22222DCFF.root',
     # '/store/mc/PhaseIITDRSpring19DR/Mu_FlatPt2to100-pythia8-gun/GEN-SIM-DIGI-RAW/NoPU_106X_upgrade2023_realistic_v3-v1/60000/7F4AF09D-D268-C74E-B06C-259D965857BE.root',
     #'/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_0.root',
     #'/store/group/l1upgrades/L1MuTrks/Ds_to_Tau3Mu_pythia8_5Apr2019_5MEvts/output/Tau3Mu_1.root',
@@ -241,5 +241,5 @@ else: # likely a local test
     process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 
-#from L1Trigger.L1TMuonEndCap.customise_Phase2 import customise as customise_Phase2  
-#process = customise_Phase2(process)
+from L1Trigger.L1TMuonEndCap.customise_Phase2 import customise as customise_Phase2  
+process = customise_Phase2(process)
