@@ -1,6 +1,12 @@
 #ifndef MUTKTREE_H
 #define MUTKTREE_H
 
+// to override the version at compile time add -D CUSTOM_TREE_VERSION -D TREEVERSION=<VNUMBER>
+#ifndef CUSTOM_TREE_VERSION
+// #define TREEVERSION 0 // the original version used for corr developments
+#define TREEVERSION 1 // added barrel and muon endcap
+#endif
+
 #include <TTreeReader.h>
 #include <TTreeReaderValue.h>
 #include <TTreeReaderArray.h>
@@ -34,6 +40,20 @@ class MuTkTree {
         TTreeReaderArray<int> EMTF_mu_hitref2  = {mtktread, "EMTF_mu_hitref2"};
         TTreeReaderArray<int> EMTF_mu_hitref3  = {mtktread, "EMTF_mu_hitref3"};
         TTreeReaderArray<int> EMTF_mu_hitref4  = {mtktread, "EMTF_mu_hitref4"};
+
+        #if TREEVERSION >= 1
+            TTreeReaderValue<UInt_t> n_barrel_mu     = {mtktread, "n_barrel_mu"};
+            TTreeReaderArray<float> barrel_mu_pt     = {mtktread, "barrel_mu_pt"};
+            TTreeReaderArray<float> barrel_mu_eta    = {mtktread, "barrel_mu_eta"};
+            TTreeReaderArray<float> barrel_mu_phi    = {mtktread, "barrel_mu_phi"};
+            TTreeReaderArray<int>   barrel_mu_charge = {mtktread, "barrel_mu_charge"};
+
+            TTreeReaderValue<UInt_t> n_ovrlap_mu     = {mtktread, "n_ovrlap_mu"};
+            TTreeReaderArray<float> ovrlap_mu_pt     = {mtktread, "ovrlap_mu_pt"};
+            TTreeReaderArray<float> ovrlap_mu_eta    = {mtktread, "ovrlap_mu_eta"};
+            TTreeReaderArray<float> ovrlap_mu_phi    = {mtktread, "ovrlap_mu_phi"};
+            TTreeReaderArray<int>   ovrlap_mu_charge = {mtktread, "ovrlap_mu_charge"};
+        #endif
 
         TTreeReaderValue<UInt_t> n_L1TT_trk     = {mtktread, "n_L1TT_trk"};
         TTreeReaderArray<float> L1TT_trk_pt     = {mtktread, "L1TT_trk_pt"};

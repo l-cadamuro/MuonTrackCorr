@@ -66,5 +66,24 @@ if testo:
     tt.SetTextSize(21)
     tt.Draw()
 
+try:
+    cms_header
+except NameError:
+    pass
+else:
+    if cms_header:
+        cmsheader_1 = ROOT.TLatex(0.15, 0.91, 'CMS')
+        cmsheader_1.SetNDC(True)
+        cmsheader_1.SetTextFont(62)
+        cmsheader_1.SetTextSize(0.05)
+        
+        cmsheader_2 = ROOT.TLatex(0.27, 0.91, 'Phase-2 Simulation')
+        cmsheader_2.SetNDC(True)
+        cmsheader_2.SetTextFont(52)
+        cmsheader_2.SetTextSize(0.05)
+
+        cmsheader_1.Draw()
+        cmsheader_2.Draw()
+
 c1.Update()
 c1.Print(out, 'pdf')
