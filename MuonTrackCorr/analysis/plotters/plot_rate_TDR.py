@@ -295,5 +295,12 @@ for h in toplot:
     rr = histos[h].GetBinContent(ibin)
     print h, " --> rate at", thresh, "GeV: ", rr
 
+thresh = 10
+for h in toplot:
+    ibin = histos[h].FindBin(thresh)
+    rr = histos[h].GetBinContent(ibin)
+    print h, " --> rate at", thresh, "GeV: ", rr
+
+
 c1.Update()
 c1.Print(oname, 'pdf')

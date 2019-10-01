@@ -25,7 +25,8 @@ namespace po = boost::program_options;
 using namespace std;
 using namespace boost::accumulators; // for mean and std
 
-#define fiducial_eta_min 1.2
+// #define fiducial_eta_min 1.2
+#define fiducial_eta_min 1.24 // Jia Fu synch'd
 #define fiducial_eta_max 2.4
 
 #define DEBUG false
@@ -1078,7 +1079,8 @@ int main(int argc, char** argv)
 
             // pick up closest for trk muons and trks, but not fOr EMTF where mutliplicity is much smaller and highest pT is a good choice
             // auto best_emtf  = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,   mtkt.EMTF_mu_eta,   mtkt.EMTF_mu_phi,   true,  dRmax, false, false); // no eta cuts for the emtf (scattering is large)
-            auto best_emtf     = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,     mtkt.EMTF_mu_eta,     mtkt.EMTF_mu_phi,     true,  99999, false, false); // no eta cuts for the emtf (scattering is large)
+            // auto best_emtf     = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,     mtkt.EMTF_mu_eta,     mtkt.EMTF_mu_phi,     true,  99999, false, false); // no eta cuts for the emtf (scattering is large)
+            auto best_emtf     = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,     mtkt.EMTF_mu_eta,     mtkt.EMTF_mu_phi,     true,  99999, true, false); // apply fiducial cuts for EMTF (for eff plots in TDR, Jia Fu synch'd)
             auto best_trk      = findBest(gen_eta, gen_phi, mtkt.L1TT_trk_pt,    mtkt.L1TT_trk_eta,    mtkt.L1TT_trk_phi,    false, dRmax, true, true, &i_trk_to_skip, &trk_pass_qual);
             auto best_tkmu     = findBest(gen_eta, gen_phi, mtkt.L1_TkMu_pt,     mtkt.L1_TkMu_eta,     mtkt.L1_TkMu_phi,     false, dRmax, true, true, nullptr, &tkmu_is_from_emtf);
             auto best_barrel   = findBest(gen_eta, gen_phi, mtkt.barrel_mu_pt,   mtkt.barrel_mu_eta,   mtkt.barrel_mu_phi,   false, 99999, false, false);

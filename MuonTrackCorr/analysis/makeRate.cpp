@@ -11,7 +11,8 @@
 using namespace std;
 
 #define DEBUG false
-#define fiducial_eta_min 1.2
+// #define fiducial_eta_min 1.2
+#define fiducial_eta_min 1.24 // Jia Fu synch'd
 #define fiducial_eta_max 2.4
 
 // c++ -lm -o makeRate makeRate.cpp `root-config --glibs --cflags`
@@ -167,9 +168,13 @@ int main(int argc, char** argv)
             cout << "... processing " << iEv << endl;
 
         // fill rates
-        for (uint iemtf = 0; iemtf < *(mtkt.n_EMTF_mu); ++iemtf)
-            // rc_EMTF.feedPt(mtkt.EMTF_mu_pt.At(iemtf));
-            rc_EMTF.feedPt(mtkt.EMTF_mu_pt_xml.At(iemtf));
+        for (uint iemtf = 0; iemtf < *(mtkt.n_EMTF_mu); ++iemtf){
+            float aeta = std::fabs(mtkt.EMTF_mu_eta.At(iemtf));
+            if (aeta < fiducial_eta_min || aeta > fiducial_eta_max) // Jia Fu synch'd
+                continue;
+            rc_EMTF.feedPt(mtkt.EMTF_mu_pt.At(iemtf)); // Jia Fu synch'd
+            // rc_EMTF.feedPt(mtkt.EMTF_mu_pt_xml.At(iemtf));
+        }
 
         for (uint itkmu = 0; itkmu < *(mtkt.n_L1_TkMu); ++itkmu){
             float aeta = std::fabs(mtkt.L1_TkMu_eta.At(itkmu));

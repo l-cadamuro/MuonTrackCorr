@@ -32,16 +32,16 @@ def calc_rate_err (h_pt, ibin, scale):
 PU_points = collections.OrderedDict()
 
 ### TkMu
-# PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
-# PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
-# PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
-# oname = 'rate_vs_PU_TkMu.pdf'
+PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+oname = 'rate_vs_PU_TkMu.pdf'
 
 ### TkMuStub
-PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
-PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
-PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
-oname = 'rate_vs_PU_TkMuStub.pdf'
+# PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+# PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+# PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+# oname = 'rate_vs_PU_TkMuStub.pdf'
 
 threshold = 20.0 # in GeV
 
