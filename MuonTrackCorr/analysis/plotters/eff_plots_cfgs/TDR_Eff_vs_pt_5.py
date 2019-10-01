@@ -3,7 +3,7 @@ inputs = [
         'name'   : "eff_emtf_vspt_ptgt5",
         'file'   : "efficiencies/effs_SingleMu_PU200_TDR_MC.root",
         'color'  : ROOT.kAzure+1,
-        'legend' : 'EMTF',
+        'legend' : 'EMTF++',
     },
     # {
     #     'name'   : "eff_trk_vspt_ptgt5",

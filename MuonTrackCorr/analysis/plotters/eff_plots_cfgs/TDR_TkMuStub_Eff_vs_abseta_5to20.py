@@ -17,6 +17,12 @@ inputs = [
         'color'  : ROOT.kRed,
         'legend' : 'TkMu',
     },
+    {
+        'name'   : "eff_tkmustub_vsabseta_pt5to20",
+        'file'   : "efficiencies/effs_SingleMu_PU200_TDR_MC.root",
+        'color'  : ROOT.kGreen+2,
+        'legend' : 'TkMuStub',
+    },
 ]
 
 frame = ROOT.TH1D('frame', ';|#eta|; Efficiency', 100, 1.2, 2.5)
