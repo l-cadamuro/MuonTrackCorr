@@ -25,7 +25,8 @@ namespace po = boost::program_options;
 using namespace std;
 using namespace boost::accumulators; // for mean and std
 
-#define fiducial_eta_min 1.2
+// #define fiducial_eta_min 1.2
+#define fiducial_eta_min 1.24 // Jia Fu synch'd
 #define fiducial_eta_max 2.4
 
 #define DEBUG false
@@ -761,6 +762,12 @@ int main(int argc, char** argv)
     int    upgtkmu_mult;
     int    upgtkmu_narb;
     //
+    double tkmustub_pt;
+    double tkmustub_eta;
+    double tkmustub_theta;
+    double tkmustub_phi;
+    int    tkmustub_mult;
+    //
     // double tkmu_z;
     double emtf_pt;
     double emtf_xml_pt;
@@ -846,6 +853,12 @@ int main(int argc, char** argv)
     tOut->Branch("upgtkmu_phi",   &upgtkmu_phi);
     tOut->Branch("upgtkmu_mult",  &upgtkmu_mult);
     tOut->Branch("upgtkmu_narb",  &upgtkmu_narb);
+
+    tOut->Branch("tkmustub_pt",    &tkmustub_pt);
+    tOut->Branch("tkmustub_eta",   &tkmustub_eta);
+    tOut->Branch("tkmustub_theta", &tkmustub_theta);
+    tOut->Branch("tkmustub_phi",   &tkmustub_phi);
+    tOut->Branch("tkmustub_mult",  &tkmustub_mult); // how many valid trk were found in the event;
 
     tOut->Branch("emtf_pt",     &emtf_pt);
     tOut->Branch("emtf_xml_pt", &emtf_xml_pt);
@@ -1056,19 +1069,30 @@ int main(int argc, char** argv)
                 trk_pass_qual.at(itrk) = ((chisq < 100) && (nstubs >= 4));
             }
 
+            // mask out the TkMu build in barrel/overlap
+            std::vector<bool> tkmu_is_from_emtf (*mtkt.n_L1_TkMu);
+            for (uint itkmu = 0; itkmu < *mtkt.n_L1_TkMu; ++itkmu)
+            {
+                tkmu_is_from_emtf.at(itkmu) = (mtkt.L1_TkMu_mudetID.At(itkmu) == 3); // detID == 3 -> EMTF matched
+            }
+
+
             // pick up closest for trk muons and trks, but not fOr EMTF where mutliplicity is much smaller and highest pT is a good choice
             // auto best_emtf  = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,   mtkt.EMTF_mu_eta,   mtkt.EMTF_mu_phi,   true,  dRmax, false, false); // no eta cuts for the emtf (scattering is large)
-            auto best_emtf    = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,   mtkt.EMTF_mu_eta,   mtkt.EMTF_mu_phi,   true,  99999, false, false); // no eta cuts for the emtf (scattering is large)
-            auto best_trk     = findBest(gen_eta, gen_phi, mtkt.L1TT_trk_pt,  mtkt.L1TT_trk_eta,  mtkt.L1TT_trk_phi,  false, dRmax, true, true, &i_trk_to_skip, &trk_pass_qual);
-            auto best_tkmu    = findBest(gen_eta, gen_phi, mtkt.L1_TkMu_pt,   mtkt.L1_TkMu_eta,   mtkt.L1_TkMu_phi,   false, dRmax, true, true);
-            auto best_barrel  = findBest(gen_eta, gen_phi, mtkt.barrel_mu_pt, mtkt.barrel_mu_eta, mtkt.barrel_mu_phi, false, 99999, false, false);
-            auto best_ovrlap  = findBest(gen_eta, gen_phi, mtkt.ovrlap_mu_pt, mtkt.ovrlap_mu_eta, mtkt.ovrlap_mu_phi, false, 99999, false, false);
+            // auto best_emtf     = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,     mtkt.EMTF_mu_eta,     mtkt.EMTF_mu_phi,     true,  99999, false, false); // no eta cuts for the emtf (scattering is large)
+            auto best_emtf     = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,     mtkt.EMTF_mu_eta,     mtkt.EMTF_mu_phi,     true,  99999, true, false); // apply fiducial cuts for EMTF (for eff plots in TDR, Jia Fu synch'd)
+            auto best_trk      = findBest(gen_eta, gen_phi, mtkt.L1TT_trk_pt,    mtkt.L1TT_trk_eta,    mtkt.L1TT_trk_phi,    false, dRmax, true, true, &i_trk_to_skip, &trk_pass_qual);
+            auto best_tkmu     = findBest(gen_eta, gen_phi, mtkt.L1_TkMu_pt,     mtkt.L1_TkMu_eta,     mtkt.L1_TkMu_phi,     false, dRmax, true, true, nullptr, &tkmu_is_from_emtf);
+            auto best_barrel   = findBest(gen_eta, gen_phi, mtkt.barrel_mu_pt,   mtkt.barrel_mu_eta,   mtkt.barrel_mu_phi,   false, 99999, false, false);
+            auto best_ovrlap   = findBest(gen_eta, gen_phi, mtkt.ovrlap_mu_pt,   mtkt.ovrlap_mu_eta,   mtkt.ovrlap_mu_phi,   false, 99999, false, false);
+            auto best_tkmustub = findBest(gen_eta, gen_phi, mtkt.L1_TkMuStub_pt, mtkt.L1_TkMuStub_eta, mtkt.L1_TkMuStub_phi, false, dRmax, true, true);
 
-            int ibest_emtf = best_emtf.first;
-            int ibest_trk  = best_trk.first;
-            int ibest_tkmu = best_tkmu.first;
-            int ibest_barrel = best_barrel.first;
-            int ibest_ovrlap = best_ovrlap.first;
+            int ibest_emtf     = best_emtf.first;
+            int ibest_trk      = best_trk.first;
+            int ibest_tkmu     = best_tkmu.first;
+            int ibest_barrel   = best_barrel.first;
+            int ibest_ovrlap   = best_ovrlap.first;
+            int ibest_tkmustub = best_tkmustub.first;
 
             if (checkTToverlap) i_trk_to_skip.push_back(ibest_trk); // store it to skip at the next round on gen muons
 
@@ -1091,6 +1115,7 @@ int main(int argc, char** argv)
             int nbest_myimpltkmu = (gen_eta > 0 ? mycorr_mu_pos.size() : mycorr_mu_neg.size());
             int nbest_barrel    = best_barrel.second;
             int nbest_ovrlap    = best_ovrlap.second;
+            int nbest_tkmustub  = best_tkmustub.second;
 
             // if (DEBUG && nbest_myimpltkmu > nbest_emtf){
             //     cout << "Do not understand : " << nbest_myimpltkmu << " " << nbest_emtf << " etagen " << gen_eta << endl;
@@ -1144,6 +1169,14 @@ int main(int argc, char** argv)
             myimpltkmu_phi     = ( ibest_myimpltkmu >= 0 ? mtkt.L1TT_trk_phi.At(ibest_myimpltkmu)                                : -999.);
             myimpltkmu_mult    = nbest_myimpltkmu;
             myimpltkmu_narb    = ( ibest_myimpltkmu >= 0 ? n_arb_mycorr.at(ibest_myimpltkmu) : 0);
+
+            tkmustub_pt      = ( ibest_tkmustub >= 0 ? mtkt.L1_TkMuStub_pt.At(ibest_tkmustub)                                 : -999.);
+            tkmustub_eta     = ( ibest_tkmustub >= 0 ? mtkt.L1_TkMuStub_eta.At(ibest_tkmustub)                                : -999.);
+            tkmustub_theta   = ( ibest_tkmustub >= 0 ? to_mpio2_pio2(eta_to_theta(mtkt.L1_TkMuStub_eta.At(ibest_tkmustub)))   : -999.);
+            tkmustub_phi     = ( ibest_tkmustub >= 0 ? mtkt.L1_TkMuStub_phi.At(ibest_tkmustub)                                : -999.);
+            // tkmustub_charge  = ( ibest_tkmustub >= 0 ? mtkt.L1_TkMu_charge.At(ibest_tkmustub)                             : -999);
+            tkmustub_mult    = nbest_tkmustub;
+
 
             barrel_pt      = ( ibest_barrel >= 0 ? mtkt.barrel_mu_pt.At(ibest_barrel)                               : -999.);
             barrel_eta     = ( ibest_barrel >= 0 ? mtkt.barrel_mu_eta.At(ibest_barrel)                              : -999.);

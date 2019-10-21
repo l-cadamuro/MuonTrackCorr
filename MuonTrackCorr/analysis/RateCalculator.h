@@ -4,6 +4,7 @@
 #include <memory>
 #include <algorithm>
 #include "TH1D.h"
+#include "TEfficiency.h"
 #include "TH1F.h"
 #include "TFile.h"
 
@@ -23,6 +24,9 @@ class RateCalculator{
         std::vector<float>    v_pt_;           // per-event selected muons pt
         std::unique_ptr<TH1D> h_leading_pt_;    // the histogram of the leading pt muon
         std::unique_ptr<TH1D> h_singlemu_rate_; // only created when making rate!
+        std::unique_ptr<TH1D> h_singlemu_gr_num_; // only created when making rate!
+        std::unique_ptr<TH1D> h_singlemu_gr_denom_; // only created when making rate!
+        std::unique_ptr<TEfficiency> h_singlemu_rate_teff_; // the tefficiency for correct rates
 };
 
 
@@ -68,7 +72,6 @@ bool RateCalculator::makeRatePlot()
     h_singlemu_rate_->SetMarkerColor(h_leading_pt_->GetMarkerColor());
     h_singlemu_rate_->SetMarkerStyle(h_leading_pt_->GetMarkerStyle());
 
-    /// fixme: can be set as a tgraoherrors to get errors
     double tot_entries = h_leading_pt_->Integral(-1, -1);
     if (tot_entries != double(h_leading_pt_->GetEntries()))
         std::cout << "** ERROR: RateCalculator: entries and integral do not match " << std::endl;
@@ -84,6 +87,38 @@ bool RateCalculator::makeRatePlot()
             h_singlemu_rate_->SetBinContent(ibin, rate_red);
         }
     }
+
+    // now also run as a TEfficiency to get the rate with the correct error
+    h_singlemu_gr_num_ = std::unique_ptr<TH1D>(new TH1D(
+        (std::string("ratenum_")+std::string(h_leading_pt_->GetName())).c_str(),
+        (std::string("Rate ")+std::string(h_leading_pt_->GetTitle())).c_str(),
+        h_leading_pt_->GetNbinsX(),
+        h_leading_pt_->GetBinLowEdge(1),
+        h_leading_pt_->GetBinLowEdge(h_leading_pt_->GetNbinsX()+1)
+    ));
+    h_singlemu_gr_denom_ = std::unique_ptr<TH1D>(new TH1D(
+        (std::string("rate_teff_")+std::string(h_leading_pt_->GetName())).c_str(),
+        (std::string("Rate ")+std::string(h_leading_pt_->GetTitle())).c_str(),
+        h_leading_pt_->GetNbinsX(),
+        h_leading_pt_->GetBinLowEdge(1),
+        h_leading_pt_->GetBinLowEdge(h_leading_pt_->GetNbinsX()+1)
+    ));
+
+    // denom : fill with the total number of events (the same for every bin)
+    // num   : filled with the integral as the rate plot
+    if (tot_entries != 0)
+    {
+        for (uint ibin = 1; ibin < h_leading_pt_->GetNbinsX()+1; ++ibin)
+        {
+            double this_integral = h_leading_pt_->Integral(ibin, -1);
+            h_singlemu_gr_num_->SetBinContent(ibin, this_integral);
+            h_singlemu_gr_denom_->SetBinContent(ibin, tot_entries);
+        }
+    }
+    h_singlemu_rate_teff_ = std::unique_ptr<TEfficiency>(new TEfficiency(
+        *h_singlemu_gr_num_, *h_singlemu_gr_denom_
+    ));
+
     return true;
 }
 
@@ -96,8 +131,16 @@ void RateCalculator::setStyle (int color)
         h_singlemu_rate_->SetLineColor(color);
         h_singlemu_rate_->SetLineWidth(2);
     }
-    return;
 
+    if (h_singlemu_rate_teff_){
+        h_singlemu_rate_teff_->SetLineColor(color);
+        h_singlemu_rate_teff_->SetLineWidth(2);
+        h_singlemu_rate_teff_->SetMarkerColor(color);
+        h_singlemu_rate_teff_->SetMarkerStyle(8);
+        h_singlemu_rate_teff_->SetMarkerSize(0.8);
+    }
+
+    return;
 }
 
 void RateCalculator::saveToFile(TFile* fOut)
@@ -105,4 +148,5 @@ void RateCalculator::saveToFile(TFile* fOut)
     fOut->cd();
     h_leading_pt_->Write();
     h_singlemu_rate_->Write();
+    h_singlemu_rate_teff_->Write();
 }

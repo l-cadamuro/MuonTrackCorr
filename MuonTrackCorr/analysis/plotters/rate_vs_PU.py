@@ -30,11 +30,20 @@ def calc_rate_err (h_pt, ibin, scale):
     return (err_up, err_do)
 
 PU_points = collections.OrderedDict()
-PU_points[140] = ('../rate_140PU_TDR_MC_EMTFmode_SvenTPFix.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
-PU_points[200] = ('../rate_200PU_TDR_MC_EMTFmode_SvenTPFix.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
-PU_points[250] = ('../rate_250PU_TDR_MC_EMTFmode_SvenTPFix.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
 
-threshold = 17.0 # in GeV
+### TkMu
+PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+oname = 'rate_vs_PU_TkMu.pdf'
+
+### TkMuStub
+# PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+# PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+# PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+# oname = 'rate_vs_PU_TkMuStub.pdf'
+
+threshold = 20.0 # in GeV
 
 ##########################
 ## compute tot rate
@@ -44,6 +53,7 @@ orbitFreq    = 11.2456 # kHz
 nCollBunches = 2748 #2808 is LHC Phase-1
 khZconv      = 1 ### converts kHz to Hz : 1000 -> Hz, 1 -> kHz
 scale        = khZconv * orbitFreq * nCollBunches
+print "... rate scale is", scale
 
 ##########################
 
@@ -68,6 +78,7 @@ for PU, desc in PU_points.items():
     h.Scale(scale)
     b = h.FindBin(threshold)
     rate = h.GetBinContent(b)
+    print PU, rate, h.GetBinContent(b-1), h.GetBinContent(b+1)
     rates.append(rate)
     err_rate = calc_rate_err(hpt, b, scale)
     # err_rate = h.GetBinError(b)
@@ -113,4 +124,4 @@ cmsheader_2.Draw()
 
 
 
-c1.Print('rate_vs_PU.pdf', 'pdf')
+c1.Print(oname, 'pdf')

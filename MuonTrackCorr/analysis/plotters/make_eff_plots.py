@@ -37,15 +37,17 @@ def makeAllEffs (tIn, threshold, x_var, nbins, xmin, xmax, tag, presel=''):
     eff_trk           = make_eff(tIn, x_var, presel, 'trk_pt > %f'     % float(threshold),  '%i, %f, %f' % (nbins, xmin, xmax), 'eff_trk_%s' % tag)
     eff_tkmu          = make_eff(tIn, x_var, presel, 'tkmu_pt > %f'    % float(threshold),  '%i, %f, %f' % (nbins, xmin, xmax), 'eff_tkmu_%s' % tag)
     eff_upgtkmu       = make_eff(tIn, x_var, presel, 'upgtkmu_pt > %f' % float(threshold),  '%i, %f, %f' % (nbins, xmin, xmax), 'eff_upgtkmu_%s' % tag)
-    eff_myimpltkmu    = make_eff(tIn, x_var, presel, 'myimpltkmu_pt > %f'    % float(threshold),  '%i, %f, %f' % (nbins, xmin, xmax), 'eff_myimpltkmu_%s' % tag)
+    eff_myimpltkmu    = make_eff(tIn, x_var, presel, 'myimpltkmu_pt > %f' % float(threshold),  '%i, %f, %f' % (nbins, xmin, xmax), 'eff_myimpltkmu_%s' % tag)
+    eff_tkmustub      = make_eff(tIn, x_var, presel, 'tkmustub_pt > %f'   % float(threshold),  '%i, %f, %f' % (nbins, xmin, xmax), 'eff_tkmustub_%s' % tag)
 
     eff_emtf.SetLineColor(ROOT.kRed)
     eff_trk.SetLineColor(ROOT.kGreen+1)
     eff_tkmu.SetLineColor(ROOT.kBlue)
     eff_upgtkmu.SetLineColor(ROOT.kBlack)
     eff_myimpltkmu.SetLineColor(ROOT.kCyan)
+    eff_tkmustub.SetLineColor(ROOT.kGreen+2)
 
-    return [eff_emtf, eff_trk, eff_tkmu, eff_upgtkmu, eff_myimpltkmu]
+    return [eff_emtf, eff_trk, eff_tkmu, eff_upgtkmu, eff_myimpltkmu, eff_tkmustub]
 
 parser = argparse.ArgumentParser(description='Command line parser of plotting options')
 #string opts
@@ -79,16 +81,16 @@ effs += makeAllEffs(tIn, threshold=0,  x_var='gen_pt', nbins=100, xmin=0, xmax=1
 effs += makeAllEffs(tIn, threshold=5,  x_var='gen_pt', nbins=100, xmin=0, xmax=100, tag="vspt_ptgt5",  presel="gen_pt > 0   && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
 effs += makeAllEffs(tIn, threshold=20, x_var='gen_pt', nbins=100, xmin=0, xmax=100, tag="vspt_ptgt20", presel="gen_pt > 0   && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
 #####
-# effs += makeAllEffs(tIn, threshold=0,  x_var='gen_eta', nbins=50, xmin=-3, xmax=3, tag="vseta_ptgt0",  presel="gen_pt > 0   && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
-# effs += makeAllEffs(tIn, threshold=5,  x_var='gen_eta', nbins=50, xmin=-3, xmax=3, tag="vseta_ptgt5",  presel="gen_pt > 5   && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
-# effs += makeAllEffs(tIn, threshold=20, x_var='gen_eta', nbins=50, xmin=-3, xmax=3, tag="vseta_ptgt20", presel="gen_pt > 20  && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
+effs += makeAllEffs(tIn, threshold=0,  x_var='gen_eta', nbins=100, xmin=-3, xmax=3, tag="vseta_ptgt0",  presel="gen_pt > 0   && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
+effs += makeAllEffs(tIn, threshold=5,  x_var='gen_eta', nbins=100, xmin=-3, xmax=3, tag="vseta_ptgt5",  presel="gen_pt > 5   && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
+effs += makeAllEffs(tIn, threshold=20, x_var='gen_eta', nbins=100, xmin=-3, xmax=3, tag="vseta_ptgt20", presel="gen_pt > 20  && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
 ####
-effs += makeAllEffs(tIn, threshold=0,  x_var='TMath::Abs(gen_eta)', nbins=50, xmin=1.0, xmax=3, tag="vsabseta_ptgt0",  presel="gen_pt > 0  && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
-effs += makeAllEffs(tIn, threshold=5,  x_var='TMath::Abs(gen_eta)', nbins=50, xmin=1.0, xmax=3, tag="vsabseta_ptgt5",  presel="gen_pt > 5  && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
-effs += makeAllEffs(tIn, threshold=20, x_var='TMath::Abs(gen_eta)', nbins=50, xmin=1.0, xmax=3, tag="vsabseta_ptgt20", presel="gen_pt > 20 && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
+effs += makeAllEffs(tIn, threshold=0,  x_var='TMath::Abs(gen_eta)', nbins=100, xmin=1.0, xmax=3, tag="vsabseta_ptgt0",  presel="gen_pt > 0  && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
+effs += makeAllEffs(tIn, threshold=5,  x_var='TMath::Abs(gen_eta)', nbins=100, xmin=1.0, xmax=3, tag="vsabseta_ptgt5",  presel="gen_pt > 5  && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
+effs += makeAllEffs(tIn, threshold=20, x_var='TMath::Abs(gen_eta)', nbins=100, xmin=1.0, xmax=3, tag="vsabseta_ptgt20", presel="gen_pt > 20 && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
 #### special
-# effs += makeAllEffs(tIn, threshold=5, x_var='gen_eta',             nbins=50, xmin=-3,  xmax=3, tag="vseta_pt5to20",    presel = "gen_pt > 5 && gen_pt < 20 && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
-effs += makeAllEffs(tIn, threshold=5, x_var='TMath::Abs(gen_eta)', nbins=50, xmin=1.0, xmax=3, tag="vsabseta_pt5to20", presel = "gen_pt > 5 && gen_pt < 20 && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
+# effs += makeAllEffs(tIn, threshold=5, x_var='gen_eta',             nbins=100, xmin=-3,  xmax=3, tag="vseta_pt5to20",    presel = "gen_pt > 5 && gen_pt < 20 && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
+effs += makeAllEffs(tIn, threshold=5, x_var='TMath::Abs(gen_eta)', nbins=100, xmin=1.0, xmax=3, tag="vsabseta_pt5to20", presel = "gen_pt > 5 && gen_pt < 20 && abs(gen_eta) > 1.2 && abs(gen_eta) < 2.4")
 # effs += makeAllEffs(tIn, threshold=20, x_var='gen_eta', nbins=50, xmin=-3, xmax=3, tag="vseta_ptgt20_gmugt10", presel = 'gen_pt > 10')
 # effs += makeAllEffs(tIn, threshold=0,  x_var='gen_eta', nbins=50, xmin=-3, xmax=3, tag="vseta_ptgt0_gmugt5", presel = 'gen_pt > 5 && abs(gen_eta) > 1.3 && abs(gen_eta) < 2.3')
 # effs += makeAllEffs(tIn, threshold=0,  x_var='gen_eta', nbins=50, xmin=-3, xmax=3, tag="vseta_ptgt0_gmugt10", presel = 'gen_pt > 10 && abs(gen_eta) > 1.3 && abs(gen_eta) < 2.3')
