@@ -15,13 +15,13 @@ inputs = [
         'name'   : "eff_tkmu_vsabseta_ptgt20",
         'file'   : "efficiencies/effs_SingleMu_PU200_TDR_MC.root",
         'color'  : ROOT.kRed,
-        'legend' : 'TkMu',
+        'legend' : 'Track + muon',
     },
     {
         'name'   : "eff_tkmustub_vsabseta_ptgt20",
         'file'   : "efficiencies/effs_SingleMu_PU200_TDR_MC.root",
         'color'  : ROOT.kGreen+2,
-        'legend' : 'TkMuStub',
+        'legend' : 'Track + muon stub',
     },
 
 ]

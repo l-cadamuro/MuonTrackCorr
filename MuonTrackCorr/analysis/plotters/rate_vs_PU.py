@@ -1,4 +1,5 @@
 import ROOT
+import sys
 import collections
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
@@ -31,26 +32,93 @@ def calc_rate_err (h_pt, ibin, scale):
 
 PU_points = collections.OrderedDict()
 
+icfg = 0
+if len(sys.argv) > 1:
+    icfg = int(sys.argv[1])
+
 ### TkMu
-PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
-PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
-PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
-oname = 'rate_vs_PU_TkMu.pdf'
+if icfg == 0:
+    PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+    PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+    PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+    PU_points[300] = ('../rate_EMTFpp_300PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+    dofit = False
+    mcol = ROOT.kRed
+    oname = 'TDR_plots/rate_vs_PU_TkMu.pdf'
 
 ### TkMuStub
-# PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
-# PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
-# PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
-# oname = 'rate_vs_PU_TkMuStub.pdf'
+if icfg == 1:
+    PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+    PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+    PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+    PU_points[300] = ('../rate_EMTFpp_300PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+    mcol = ROOT.kGreen+2
+    dofit = False
+    oname = 'TDR_plots/rate_vs_PU_TkMuStub.pdf'
+
+### EMTD
+if icfg == 2:
+    PU_points[140] = ('../rate_EMTFpp_140PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+    PU_points[200] = ('../rate_EMTFpp_200PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+    PU_points[250] = ('../rate_EMTFpp_250PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+    PU_points[300] = ('../rate_EMTFpp_300PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+    mcol = ROOT.kBlue
+    dofit = False
+    oname = 'TDR_plots/rate_vs_PU_EMTF.pdf'
+
+### all together
+if icfg == 3:
+    MTFs  = ['EMTF',     'TkMuStub',           'TkMu']
+    legs  = ['EMTF++',   'Track + muon stub',  'Track + muon']
+    mcols = [ROOT.kBlue, ROOT.kGreen+2,        ROOT.kRed]
+    
+    PU_points_all = collections.OrderedDict()
+    PU_points_all['EMTF']     = collections.OrderedDict()
+    PU_points_all['TkMu']     = collections.OrderedDict()
+    PU_points_all['TkMuStub'] = collections.OrderedDict()
+
+    PU_points_all['EMTF'][140] = ('../rate_EMTFpp_140PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+    PU_points_all['EMTF'][200] = ('../rate_EMTFpp_200PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+    PU_points_all['EMTF'][250] = ('../rate_EMTFpp_250PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+    PU_points_all['EMTF'][300] = ('../rate_EMTFpp_300PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+
+    PU_points_all['TkMu'][140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+    PU_points_all['TkMu'][200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+    PU_points_all['TkMu'][250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+    PU_points_all['TkMu'][300] = ('../rate_EMTFpp_300PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+
+    PU_points_all['TkMuStub'][140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+    PU_points_all['TkMuStub'][200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+    PU_points_all['TkMuStub'][250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+    PU_points_all['TkMuStub'][300] = ('../rate_EMTFpp_300PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+
+    mcol = ROOT.kBlue
+    dofit = False
+    oname = 'TDR_plots/rate_vs_PU_allfinders.pdf'
+
 
 threshold = 20.0 # in GeV
+etext = ROOT.TLatex(0.6, 0.2, "p_{T}^{#mu} > %.0f GeV" % threshold)
+etext.SetNDC()
+etext.SetTextFont(42)
+etext.SetTextSize(0.05)
+
+if len(sys.argv) > 2:
+    threshold = float(sys.argv[2])
+    oname = oname.replace('.pdf', '_thr%0f.pdf' % threshold)
+
+#### summary
+
+print " ... running on points : ", PU_points
+print " ... threshold [GeV]   : ", threshold
+print " ... output name       : ", oname
 
 ##########################
 ## compute tot rate
 
-orbitFreq    = 11.2456 # kHz
+orbitFreq    = 11.246 ##11.2456 # kHz
 # nCollBunches = 1866
-nCollBunches = 2748 #2808 is LHC Phase-1
+nCollBunches = 2760 #2808 is LHC Phase-1
 khZconv      = 1 ### converts kHz to Hz : 1000 -> Hz, 1 -> kHz
 scale        = khZconv * orbitFreq * nCollBunches
 print "... rate scale is", scale
@@ -58,7 +126,7 @@ print "... rate scale is", scale
 ##########################
 
 xmin = 0
-xmax = 350
+xmax = 400
 
 frame = ROOT.TH1D ('frame', ';PU;Rate [kHz]', 100, xmin, xmax)
 frame.SetMinimum(0)
@@ -68,60 +136,147 @@ c1 = ROOT.TCanvas('c1', 'c1', 600, 600)
 setStyle(frame, c1)
 # c1.SetLogy()
 
-gr = ROOT.TGraphAsymmErrors()
-rates = []
-for PU, desc in PU_points.items():
-    print '.... PU', PU, 'running on file', desc[0], 'histo name', desc[1]
-    f = ROOT.TFile(desc[0])
-    h = f.Get(desc[1])
-    hpt = f.Get(desc[2])
-    h.Scale(scale)
-    b = h.FindBin(threshold)
-    rate = h.GetBinContent(b)
-    print PU, rate, h.GetBinContent(b-1), h.GetBinContent(b+1)
-    rates.append(rate)
-    err_rate = calc_rate_err(hpt, b, scale)
-    # err_rate = h.GetBinError(b)
-    # err_rate = 0.2
-    gr.SetPoint(gr.GetN(), PU, rate)
-    gr.SetPointError(gr.GetN()-1, 0, 0, err_rate[0]*rate, err_rate[1]*rate)
-    # h.SetDirectory(0)
-    # h.Draw('same')
+### a single point
+if len(PU_points) > 0:
+    gr = ROOT.TGraphAsymmErrors()
+    rates = []
+    for PU, desc in PU_points.items():
+        print '.... PU', PU, 'running on file', desc[0], 'histo name', desc[1]
+        f = ROOT.TFile(desc[0])
+        h = f.Get(desc[1])
+        hpt = f.Get(desc[2])
+        h.Scale(scale)
+        b = h.FindBin(threshold)
+        rate = h.GetBinContent(b)
+        print PU, rate, h.GetBinContent(b-1), h.GetBinContent(b+1)
+        rates.append(rate)
+        err_rate = calc_rate_err(hpt, b, scale)
+        # err_rate = h.GetBinError(b)
+        # err_rate = 0.2
+        gr.SetPoint(gr.GetN(), PU, rate)
+        gr.SetPointError(gr.GetN()-1, 0, 0, err_rate[0]*rate, err_rate[1]*rate)
+        # h.SetDirectory(0)
+        # h.Draw('same')
 
-gr.SetMarkerStyle(8)
-gr.SetMarkerSize(0.8)
-gr.SetMarkerColor(ROOT.kBlue)
-gr.SetLineColor(ROOT.kBlue)
+    gr.SetMarkerStyle(8)
+    gr.SetMarkerSize(1.2)
+    gr.SetMarkerColor(mcol)
+    gr.SetLineColor(mcol)
 
-gr.Print()
-# f = ROOT.TF1('lin', '[0]*x', 90, 300)
-f = ROOT.TF1('lin', '[0]*x', xmin, xmax)
-f.SetLineColor(ROOT.kGray)
-f.SetLineWidth(1)
-f.SetLineStyle(7)
-gr.Fit(f)
+    gr.Print()
+    # f = ROOT.TF1('lin', '[0]*x', 90, 300)
+    f = ROOT.TF1('lin', '[0]*x', xmin, xmax)
+    f.SetLineColor(ROOT.kGray)
+    f.SetLineWidth(1)
+    f.SetLineStyle(7)
+    if dofit: gr.Fit(f, "N")
 
-frame.SetMaximum(1.15*max(rates))
+    frame.SetMaximum(1.15*max(rates))
 
-frame.Draw()
-f.Draw('same')
-gr.Draw("P same")
+    frame.Draw()
+    if dofit: f.Draw('same')
+    gr.Draw("P same")
+
+### multiple curves
+else:
+    mg = ROOT.TMultiGraph()
+    graphs = []
+    all_rates = []
+    for idx, (tkfinder, PU_points) in enumerate(PU_points_all.items()):
+
+        gr = ROOT.TGraphAsymmErrors()
+        rates = []
+        for PU, desc in PU_points.items():
+            print '.... PU', PU, 'running on file', desc[0], 'histo name', desc[1]
+            f = ROOT.TFile(desc[0])
+            h = f.Get(desc[1])
+            hpt = f.Get(desc[2])
+            h.Scale(scale)
+            b = h.FindBin(threshold)
+            rate = h.GetBinContent(b)
+            print PU, rate, h.GetBinContent(b-1), h.GetBinContent(b+1)
+            rates.append(rate)
+            err_rate = calc_rate_err(hpt, b, scale)
+            # err_rate = h.GetBinError(b)
+            # err_rate = 0.2
+            gr.SetPoint(gr.GetN(), PU, rate)
+            gr.SetPointError(gr.GetN()-1, 0, 0, err_rate[0]*rate, err_rate[1]*rate)
+            # h.SetDirectory(0)
+            # h.Draw('same')
+
+        gr.SetMarkerStyle(8)
+        gr.SetMarkerSize(1.2)
+        gr.SetMarkerColor(mcols[idx])
+        gr.SetLineColor(mcols[idx])
+        graphs.append(gr)
+        mg.Add(gr)
+        all_rates.append(rates)
+
+    # gr.Print()
+    # # f = ROOT.TF1('lin', '[0]*x', 90, 300)
+    # f = ROOT.TF1('lin', '[0]*x', xmin, xmax)
+    # f.SetLineColor(ROOT.kGray)
+    # f.SetLineWidth(1)
+    # f.SetLineStyle(7)
+    # if dofit: gr.Fit(f, "N")
+
+    maxs = [max(r) for r in all_rates]
+    frame.SetMaximum(1.15*max(maxs))
+    frame.SetMinimum(0)
+
+    frame.Draw()
+    if dofit: f.Draw('same')
+    # mg.Draw("P same")
+    for g in graphs:
+        g.Draw('P same')
+
+    leg = ROOT.TLegend(0.15, 0.65, 0.4, 0.88)
+    for idx, tkfinder in enumerate(MTFs):
+        leg.AddEntry(graphs[idx], legs[idx], 'pe')
+    leg.SetFillStyle(0)
+    leg.SetBorderSize(0)
+    leg.SetTextFont(42)
+    leg.SetTextSize(0.045)
+    leg.Draw()
 
 
-cmsheader_1 = ROOT.TLatex(0.15, 0.91, 'CMS')
+# cmsheader_1 = ROOT.TLatex(0.15, 0.91, 'CMS')
+# cmsheader_1.SetNDC(True)
+# cmsheader_1.SetTextFont(62)
+# cmsheader_1.SetTextSize(0.05)
+
+# cmsheader_2 = ROOT.TLatex(0.27, 0.91, 'Phase-2 Simulation')
+# cmsheader_2.SetNDC(True)
+# cmsheader_2.SetTextFont(52)
+# cmsheader_2.SetTextSize(0.05)
+
+# cmsheader_1.Draw()
+# cmsheader_2.Draw()
+
+xtxt = 0.15
+ytxt = 0.91
+textsize = 20
+
+cmsheader_1 = ROOT.TLatex(xtxt, ytxt, 'CMS')
 cmsheader_1.SetNDC(True)
-cmsheader_1.SetTextFont(62)
-cmsheader_1.SetTextSize(0.05)
+cmsheader_1.SetTextFont(63)
+cmsheader_1.SetTextSize(textsize)
 
-cmsheader_2 = ROOT.TLatex(0.27, 0.91, 'Phase-2 Simulation')
+cmsheader_2 = ROOT.TLatex(xtxt + 0.08, ytxt, 'Phase-2 Simulation')
 cmsheader_2.SetNDC(True)
-cmsheader_2.SetTextFont(52)
-cmsheader_2.SetTextSize(0.05)
+cmsheader_2.SetTextFont(53)
+cmsheader_2.SetTextSize(textsize)
+
+cmsheader_3 = ROOT.TLatex(0.9, ytxt, '14 TeV, 3000 fb^{-1}')
+cmsheader_3.SetNDC(True)
+cmsheader_3.SetTextFont(43)
+cmsheader_3.SetTextAlign(31)
+cmsheader_3.SetTextSize(textsize-2)
 
 cmsheader_1.Draw()
 cmsheader_2.Draw()
+cmsheader_3.Draw()
 
-
-
+etext.Draw()
 
 c1.Print(oname, 'pdf')

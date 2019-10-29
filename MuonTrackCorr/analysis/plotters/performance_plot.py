@@ -3,7 +3,8 @@ ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 
 # fIn = ROOT.TFile.Open('../plots_JFsynch_pt20_eta1p2_2p4_scaledPt_tree.root')
-fIn = ROOT.TFile.Open('../matched_tree_MuMu_flatPt_0PU_noSF.root')
+# fIn = ROOT.TFile.Open('../matched_tree_MuMu_flatPt_0PU_noSF.root')
+fIn = ROOT.TFile.Open('../matchedTree_MuGun_PU0_EMTFpp.root')
 tIn = fIn.Get('tree')
 
 c1_square = ROOT.TCanvas('c1_square', 'c1_square', 600, 600)
@@ -164,13 +165,13 @@ plots = [
     #     'colz',
     #     'square-logy'
     # ),
-    # (
-    #     'TMath::Sqrt((emtf_eta - trk_eta)*(emtf_eta - trk_eta) +  TVector2::Phi_mpi_pi(emtf_phi - trk_phi)*TVector2::Phi_mpi_pi(emtf_phi - trk_phi)) : 1./gen_pt',
-    #     'trk_pt > 0 && emtf_pt > 0',
-    #     ROOT.TH2D('deltaR_track_emtf_vs_OneOvergen_pt', '; 1/p_{T}^{gen} ; #DeltaR(track, EMTF); a.u.', 300, 0, 0.25, 3000, 0, 3),
-    #     'colz',
-    #     'square-logy'
-    # ),
+    (
+        'TMath::Sqrt((emtf_eta - trk_eta)*(emtf_eta - trk_eta) +  TVector2::Phi_mpi_pi(emtf_phi - trk_phi)*TVector2::Phi_mpi_pi(emtf_phi - trk_phi)) : 1./gen_pt',
+        'trk_pt > 0 && emtf_pt > 0',
+        ROOT.TH2D('deltaR_track_emtf_vs_OneOvergen_pt', '; 1/p_{T}^{gen} ; #DeltaR(track, EMTF); a.u.', 300, 0, 0.25, 3000, 0, 3),
+        'colz',
+        'square-logy'
+    ),
     # (
     #     'emtf_eta - trk_eta: 1./gen_pt',
     #     'trk_pt > 0 && emtf_pt > 0',
@@ -192,13 +193,13 @@ plots = [
     #     'colz',
     #     'square-logy'
     # ),
-    (
-        'TVector2::Phi_mpi_pi(trk_phi - gen_phi)',
-        'trk_pt > 0 && gen_charge < 0',
-        ROOT.TH1D('deltaPhi_track_emtf', ';#Delta#varphi(track, EMTF); a.u.', 300, -0.2, 0.2),
-        'colz',
-        'square'
-    ),
+    # (
+    #     'TVector2::Phi_mpi_pi(trk_phi - gen_phi)',
+    #     'trk_pt > 0 && gen_charge < 0',
+    #     ROOT.TH1D('deltaPhi_track_emtf', ';#Delta#varphi(track, EMTF); a.u.', 300, -0.2, 0.2),
+    #     'colz',
+    #     'square'
+    # ),
 
 ]
 

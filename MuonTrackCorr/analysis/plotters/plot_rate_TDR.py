@@ -25,7 +25,7 @@ if thecfg == 0:
         'EMTF',
         'TkMu'
     ]
-    oname = "rate_comparison_TDR_EMTF_TkMu.pdf"
+    oname = "TDR_plots/rate_comparison_TDR_EMTF_TkMu.pdf"
 
 elif thecfg == 1:
     toplot = [
@@ -33,7 +33,7 @@ elif thecfg == 1:
         'TkMuTrue',
         'TkMuFake',
     ]
-    oname = "rate_comparison_TDR_TkMu_purity.pdf"
+    oname = "TDR_plots/rate_comparison_TDR_TkMu_purity.pdf"
 
 elif thecfg == 2:
     toplot = [
@@ -41,7 +41,7 @@ elif thecfg == 2:
         'TkMu',
         'TkMuStub'
     ]
-    oname = "rate_comparison_TDR_EMTF_TkMu_TkMuStub.pdf"
+    oname = "TDR_plots/rate_comparison_TDR_EMTF_TkMu_TkMuStub.pdf"
 
 elif thecfg == 3:
     toplot = [
@@ -49,7 +49,7 @@ elif thecfg == 3:
         'TkMuStubTrue',
         'TkMuStubFake',
     ]
-    oname = "rate_comparison_TDR_TkMuStub_purity.pdf"
+    oname = "TDR_plots/rate_comparison_TDR_TkMuStub_purity.pdf"
 
 print '... plotting'
 print toplot
@@ -75,19 +75,20 @@ inputs = {
 colors = {
     'EMTF'   : ROOT.kAzure+1,
     'TkMu'   : ROOT.kRed,
-    'TkMuTrue'   : ROOT.kRed+2,
-    'TkMuFake'   : ROOT.kGray+1,
+    # 'TkMuTrue'   : ROOT.kRed-6,
+    'TkMuTrue'   : ROOT.kOrange-3,
+    'TkMuFake'   : ROOT.kGray+2,
     'TkMuStub'   : ROOT.kGreen+2,
-    'TkMuStubTrue'   : ROOT.kGreen+3,
-    'TkMuStubFake'   : ROOT.kGray+1,
+    'TkMuStubTrue'   : ROOT.kAzure+2,
+    'TkMuStubFake'   : ROOT.kGray+2,
 }
 
 legnames = {
     'EMTF' : 'EMTF++',
-    'TkMu' : 'TkMu',
+    'TkMu' : 'Track + muon',
     'TkMuTrue' : 'True #mu',
     'TkMuFake' : 'Fake #mu',
-    'TkMuStub' : 'TkMuStub',
+    'TkMuStub' : 'Track + muon stub',
     'TkMuStubTrue' : 'True #mu',
     'TkMuStubFake' : 'Fake #mu',
 }
@@ -111,7 +112,7 @@ histerrs = {key : f[0].Get(f[2]).CreateGraph() for (key, f) in files.items() if 
 print histerrs
 
 c1 = ROOT.TCanvas('c1', 'c1', 600, 600)
-frame = ROOT.TH1D('frame', ';p_{T} threshold [GeV]; Rate [kHz]', 1000, 0, 100)
+frame = ROOT.TH1D('frame', ';Muon p_{T} threshold [GeV]; Rate [kHz]', 1000, 0, 100)
 
 # c1.SetBottomMargin(0.13)
 # c1.SetLeftMargin(0.15)
@@ -180,9 +181,9 @@ if doratio:
 
 ### compute tot rate
 
-orbitFreq    = 11.2456 # kHz
+orbitFreq    = 11.246 #11.2456 # kHz
 # nCollBunches = 1866
-nCollBunches = 2748 #2808 is LHC Phase-1
+nCollBunches = 2760 #2808 is LHC Phase-1
 khZconv      = 1 ### converts kHz to Hz : 1000 -> Hz, 1 -> kHz
 scale        = khZconv * orbitFreq * nCollBunches
 print "... rate scale is", scale
@@ -236,22 +237,63 @@ for h in histerrs:
 #     gr_TP.SetMarkerSize(0.9)
 
 # leg = ROOT.TLegend(0.5, 0.6, 0.88, 0.88)
-leg = ROOT.TLegend(0.5, 0.7, 0.88, 0.88)
+leg = ROOT.TLegend(0.3, 0.6, 0.88, 0.88)
 leg.SetBorderSize(0)
 leg.SetFillStyle(0)
+leg.SetTextFont(42)
+leg.SetTextSize(0.055)
 for h in toplot:
-    leg.AddEntry(histos[h], legnames[h], 'l')
+    leg.AddEntry(histos[h], legnames[h], 'lf')
 # if add_TP_scan:
 #     leg.AddEntry(gr_TP, "CMS-TDR-15-02 (TP, 140 PU)", 'pl')
 
-if doratio:
-    PUtext = ROOT.TLatex(0.90, 0.96, "#sqrt{s} = 14 TeV, PU 200, %i colliding bunches" % nCollBunches)
-else:
-    PUtext = ROOT.TLatex(0.90, 0.92, "#sqrt{s} = 14 TeV, PU 200, %i colliding bunches" % nCollBunches)
-PUtext.SetNDC(True)
-PUtext.SetTextFont(43)
-PUtext.SetTextSize(18)
-PUtext.SetTextAlign(31)
+# if doratio:
+#     PUtext = ROOT.TLatex(0.90, 0.96, "#sqrt{s} = 14 TeV, PU 200, %i colliding bunches" % nCollBunches)
+# else:
+#     PUtext = ROOT.TLatex(0.90, 0.92, "#sqrt{s} = 14 TeV, PU 200, %i colliding bunches" % nCollBunches)
+# PUtext.SetNDC(True)
+# PUtext.SetTextFont(43)
+# PUtext.SetTextSize(18)
+# PUtext.SetTextAlign(31)
+
+##################################################
+### my version
+
+# cmsheader_1 = ROOT.TLatex(0.15, 0.91, 'CMS')
+# cmsheader_1.SetNDC(True)
+# cmsheader_1.SetTextFont(62)
+# cmsheader_1.SetTextSize(0.05)
+
+# cmsheader_2 = ROOT.TLatex(0.27, 0.91, 'Phase-2 Simulation')
+# cmsheader_2.SetNDC(True)
+# cmsheader_2.SetTextFont(52)
+# cmsheader_2.SetTextSize(0.05)
+
+# cmsheader_1.Draw()
+# cmsheader_2.Draw()
+
+##################################################
+### followign plotting_templace
+
+xtxt = 0.15
+ytxt = 0.91
+textsize = 20
+
+cmsheader_1 = ROOT.TLatex(xtxt, ytxt, 'CMS')
+cmsheader_1.SetNDC(True)
+cmsheader_1.SetTextFont(63)
+cmsheader_1.SetTextSize(textsize)
+
+cmsheader_2 = ROOT.TLatex(xtxt + 0.08, ytxt, 'Phase-2 Simulation')
+cmsheader_2.SetNDC(True)
+cmsheader_2.SetTextFont(53)
+cmsheader_2.SetTextSize(textsize)
+
+cmsheader_3 = ROOT.TLatex(0.9, ytxt, '14 TeV, 3000 fb^{-1}, 200 PU')
+cmsheader_3.SetNDC(True)
+cmsheader_3.SetTextFont(43)
+cmsheader_3.SetTextAlign(31)
+cmsheader_3.SetTextSize(textsize-2)
 
 ### plot
 
@@ -273,7 +315,10 @@ for h in histos.values():
 # if add_TP_scan: gr_TP.Draw('p same')
 
 leg.Draw()
-PUtext.Draw()
+# PUtext.Draw()
+cmsheader_1.Draw()
+cmsheader_2.Draw()
+cmsheader_3.Draw()
 
 if doratio:
     c1.cd()

@@ -15,7 +15,7 @@ inputs = [
         'name'   : "eff_tkmu_vspt_ptgt5",
         'file'   : "efficiencies/effs_SingleMu_PU200_TDR_MC.root",
         'color'  : ROOT.kRed,
-        'legend' : 'TkMu',
+        'legend' : 'Track + muon',
     },
 ]
 

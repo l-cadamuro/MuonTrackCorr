@@ -17,14 +17,14 @@
 #################
 ####################### Plots for the TDR
 
-python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_pt_5.py           efficiencies/TDR_Eff_vs_pt_5.pdf 
-python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_pt_20.py          efficiencies/TDR_Eff_vs_pt_20.pdf
+python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_pt_5.py           TDR_plots/TDR_Eff_vs_pt_5.pdf 
+python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_pt_20.py          TDR_plots/TDR_Eff_vs_pt_20.pdf
 # ##
-python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_abseta_5to20.py   efficiencies/TDR_Eff_vs_abseta_5to20.pdf 
-python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_abseta_20.py      efficiencies/TDR_Eff_vs_abseta_20.pdf
+python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_abseta_5to20.py   TDR_plots/TDR_Eff_vs_abseta_5to20.pdf 
+python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_abseta_20.py      TDR_plots/TDR_Eff_vs_abseta_20.pdf
 ##
-python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_pt_5.py           efficiencies/TDR_TkMuStub_Eff_vs_pt_5.pdf 
-python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_pt_20.py          efficiencies/TDR_TkMuStub_Eff_vs_pt_20.pdf
+python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_pt_5.py           TDR_plots/TDR_TkMuStub_Eff_vs_pt_5.pdf 
+python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_pt_20.py          TDR_plots/TDR_TkMuStub_Eff_vs_pt_20.pdf
 ##
-python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_abseta_5to20.py   efficiencies/TDR_TkMuStub_Eff_vs_abseta_5to20.pdf 
-python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_abseta_20.py      efficiencies/TDR_TkMuStub_Eff_vs_abseta_20.pdf
+python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_abseta_5to20.py   TDR_plots/TDR_TkMuStub_Eff_vs_abseta_5to20.pdf 
+python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_abseta_20.py      TDR_plots/TDR_TkMuStub_Eff_vs_abseta_20.pdf

@@ -64,17 +64,19 @@ class histo:
     def build_histo(self, tIn):
         self.histo.SetDirectory(ROOT.gDirectory) ## needed to make the ttree aware of this histo
         tIn.Draw('{expr} >> {hname}'.format(expr=self.expr, hname=self.name), self.cut)
-        if 'norm' in self.properties:
+        if 'norm' in self.properties and self.histo.Integral() > 0:
             self.histo.Scale(self.properties['norm']/self.histo.Integral())
         self.histo.SetDirectory(0) 
 
 #############################################################################################
 
 class plotMaker:
-    histos = collections.OrderedDict()
-    plot_alone_if_in_overlay = False
-    plot_name_proto = '{hname}.pdf'
-    def_col_palette = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen+1, ROOT.kBlack, ROOT.kMagenta, ROOT.kCyan, ROOT.kOrange]
+    def __init__(self):
+        self.histos = collections.OrderedDict()
+        self.plot_alone_if_in_overlay = False
+        self.plot_name_proto = '{hname}.pdf'
+        self.rootfile_output = None
+        self.def_col_palette = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen+1, ROOT.kBlack, ROOT.kMagenta, ROOT.kCyan, ROOT.kOrange]
 
     def load_histos(self, histo_defs):
         print '... loading histos'
@@ -169,3 +171,11 @@ class plotMaker:
 
             ## reset the canvas defaults
             self.c1.SetLogy(True)
+
+        ## dump to file if required - just the individual plots, no need for overlays
+        if self.rootfile_output:
+            print "... saving to file: ", self.rootfile_output.GetName()
+            for hname in self.histos:
+                h = self.histos[hname]
+                self.rootfile_output.cd()
+                h.histo.Write()

@@ -72,18 +72,43 @@ except NameError:
     pass
 else:
     if cms_header:
-        cmsheader_1 = ROOT.TLatex(0.15, 0.91, 'CMS')
-        cmsheader_1.SetNDC(True)
-        cmsheader_1.SetTextFont(62)
-        cmsheader_1.SetTextSize(0.05)
+        # cmsheader_1 = ROOT.TLatex(0.15, 0.91, 'CMS')
+        # cmsheader_1.SetNDC(True)
+        # cmsheader_1.SetTextFont(62)
+        # cmsheader_1.SetTextSize(0.05)
         
-        cmsheader_2 = ROOT.TLatex(0.27, 0.91, 'Phase-2 Simulation')
+        # cmsheader_2 = ROOT.TLatex(0.27, 0.91, 'Phase-2 Simulation')
+        # cmsheader_2.SetNDC(True)
+        # cmsheader_2.SetTextFont(52)
+        # cmsheader_2.SetTextSize(0.05)
+
+        # cmsheader_1.Draw()
+        # cmsheader_2.Draw()
+
+        xtxt = 0.15
+        ytxt = 0.91
+        textsize = 20
+
+        cmsheader_1 = ROOT.TLatex(xtxt, ytxt, 'CMS')
+        cmsheader_1.SetNDC(True)
+        cmsheader_1.SetTextFont(63)
+        cmsheader_1.SetTextSize(textsize)
+
+        cmsheader_2 = ROOT.TLatex(xtxt + 0.08, ytxt, 'Phase-2 Simulation')
         cmsheader_2.SetNDC(True)
-        cmsheader_2.SetTextFont(52)
-        cmsheader_2.SetTextSize(0.05)
+        cmsheader_2.SetTextFont(53)
+        cmsheader_2.SetTextSize(textsize)
+
+        cmsheader_3 = ROOT.TLatex(0.9, ytxt, '14 TeV, 3000 fb^{-1}, 200 PU')
+        cmsheader_3.SetNDC(True)
+        cmsheader_3.SetTextFont(43)
+        cmsheader_3.SetTextAlign(31)
+        cmsheader_3.SetTextSize(textsize-2)
 
         cmsheader_1.Draw()
         cmsheader_2.Draw()
+        cmsheader_3.Draw()
+
 
 c1.Update()
 c1.Print(out, 'pdf')
