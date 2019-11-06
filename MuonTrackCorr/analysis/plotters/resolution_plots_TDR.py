@@ -98,6 +98,66 @@ if icfg == 4:
     draw_cumul = True
     oname = 'TDR_plots/dtheta_times_endcapsign_EMTF.pdf'
 
+if icfg == 5:
+    expr   = '(emtf_theta/TMath::Abs(emtf_theta)) * (emtf_theta - trk_theta)'
+    title  = ';endcap sign #times (#theta^{EMTF++} - #theta^{track}) [rad];a.u.'
+    exist_cut = 'emtf_pt > 0 && trk_pt > 0'
+    gen_var_cut = 'gen_charge'
+    gen_var_title = 'q^{gen}'
+    nbins = 200
+    xmin = -0.15
+    xmax = 0.15
+    draw_cumul = True
+    oname = 'TDR_plots/dtheta_times_endcapsign_EMTFtrk.pdf'
+
+if icfg == 6:
+    expr   = 'trk_charge * (emtf_phi - trk_phi)'
+    title  = ';charge #times (#varphi^{EMTF++} - #varphi^{track}) [rad];a.u.'
+    exist_cut = 'emtf_pt > 0 && trk_pt > 0'
+    gen_var_cut = 'gen_charge'
+    gen_var_title = 'q^{gen}'
+    nbins = 200
+    xmin = -1.5
+    xmax = 1.5
+    draw_cumul = True
+    oname = 'TDR_plots/dphi_times_charge_EMTFtrk.pdf'
+
+if icfg == 7:
+    expr   = 'trk_charge * (barrel_phi - trk_phi)'
+    title  = ';charge #times (#varphi^{barrel #mu} - #varphi^{track}) [rad];a.u.'
+    exist_cut = 'barrel_pt > 0 && trk_pt > 0'
+    gen_var_cut = 'gen_charge'
+    gen_var_title = 'q^{gen}'
+    nbins = 200
+    xmin = -1.5
+    xmax = 1.5
+    draw_cumul = True
+    oname = 'TDR_plots/dphi_times_charge_BarrMutrk.pdf'
+
+if icfg == 8:
+    expr   = 'emtf_xml_pt / gen_pt'
+    title  = ';p_{T}^{EMTF++} / p_{T}^{gen} [GeV];a.u.'
+    exist_cut = 'emtf_pt > 0'
+    gen_var_cut = 'gen_eta'
+    gen_var_title = '#eta^{gen}'
+    nbins = 100
+    xmin = 0
+    xmax = 3
+    draw_cumul = True
+    oname = 'TDR_plots/pt_resol_emtf_xml.pdf'
+
+if icfg == 9:
+    expr   = 'trk_pt / gen_pt'
+    title  = ';p_{T}^{trk} / p_{T}^{gen} [GeV];a.u.'
+    exist_cut = 'trk_pt > 0'
+    gen_var_cut = 'gen_eta'
+    gen_var_title = '#eta^{gen}'
+    nbins = 100
+    xmin = 0.87
+    xmax = 1.27
+    draw_cumul = True
+    oname = 'TDR_plots/pt_resol_trk.pdf'
+
 
 # if icfg == 4:
 #     expr   = 'emtf_theta - gen_theta'

@@ -10,6 +10,7 @@
 #include <utility>
 #include <stdlib.h>
 #include "MatchWindow.h"
+#include "MantraCorr.h"
 #include "TFile.h"
 #include "MuTkTree.h" // my interface to the ntuples
 #include "TMath.h"

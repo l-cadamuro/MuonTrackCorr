@@ -51,6 +51,33 @@ elif thecfg == 3:
     ]
     oname = "TDR_plots/rate_comparison_TDR_TkMuStub_purity.pdf"
 
+elif thecfg == 4:
+    toplot = [
+        'Mantra_barr',
+        'Mantra_ovrl',
+        'Mantra_endc',
+    ]
+    oname = "TDR_plots/rate_comparison_Mantra_allDet.pdf"
+
+elif thecfg == 5:
+    toplot = [
+        'Mantra_ovrl',
+    ]
+    oname = "TDR_plots/rate_comparison_Mantra_ovrlap.pdf"
+
+elif thecfg == 6:
+    toplot = [
+        'Mantra_ovrl_maxpt',
+    ]
+    oname = "TDR_plots/rate_comparison_Mantra_ovrlap_maxpt.pdf"
+
+elif thecfg == 7:
+    toplot = [
+        'Mantra_ovrl_mindpt',
+    ]
+    oname = "TDR_plots/rate_comparison_Mantra_ovrlap_mindpt.pdf"
+
+
 print '... plotting'
 print toplot
 print '... saving as', oname
@@ -64,6 +91,11 @@ inputs = {
     'TkMuStub'       : ["../rate_EMTFpp_200PU.root", 'rate_TPTkMuStub_lead_mu_pt', 'rate_teff_TPTkMuStub_lead_mu_pt_clone'],
     'TkMuStubTrue'   : ["../rate_EMTFpp_200PU.root", 'rate_TPTkMuStub_truemu_lead_mu_pt', 'rate_teff_TPTkMuStub_truemu_lead_mu_pt_clone'],
     'TkMuStubFake'   : ["../rate_EMTFpp_200PU.root", 'rate_TPTkMuStub_fakemu_lead_mu_pt', 'rate_teff_TPTkMuStub_fakemu_lead_mu_pt_clone'],
+    'Mantra_barr'    : ['../rate_alldetectors_200PU.root', 'rate_Mantra_TkMu_barr_lead_mu_pt', 'rate_teff_Mantra_TkMu_barr_lead_mu_pt_clone'],
+    'Mantra_ovrl'    : ['../rate_alldetectors_200PU.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'rate_teff_Mantra_TkMu_ovrl_lead_mu_pt_clone'],
+    'Mantra_endc'    : ['../rate_alldetectors_200PU.root', 'rate_Mantra_TkMu_endc_lead_mu_pt', 'rate_teff_Mantra_TkMu_endc_lead_mu_pt_clone'],
+    'Mantra_ovrl_maxpt'    : ['../rate_alldetectors_200PU_maxpt.root',  'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'rate_teff_Mantra_TkMu_ovrl_lead_mu_pt_clone'],
+    'Mantra_ovrl_mindpt'   : ['../rate_alldetectors_200PU_mindpt.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'rate_teff_Mantra_TkMu_ovrl_lead_mu_pt_clone'],
 }
 
 # inputs = {
@@ -81,6 +113,12 @@ colors = {
     'TkMuStub'   : ROOT.kGreen+2,
     'TkMuStubTrue'   : ROOT.kAzure+2,
     'TkMuStubFake'   : ROOT.kGray+2,
+    'Mantra_barr' : ROOT.kRed,
+    'Mantra_ovrl' : ROOT.kGreen+1,
+    'Mantra_endc' : ROOT.kBlue,
+    'Mantra_ovrl_maxpt'  : ROOT.kGreen+1,
+    'Mantra_ovrl_mindpt' : ROOT.kGreen+1,
+
 }
 
 legnames = {
@@ -91,6 +129,11 @@ legnames = {
     'TkMuStub' : 'Track + muon stub',
     'TkMuStubTrue' : 'True #mu',
     'TkMuStubFake' : 'Fake #mu',
+    'Mantra_barr' : 'TkMu, barrel',
+    'Mantra_ovrl' : 'TkMu, overlap',
+    'Mantra_endc' : 'TkMu, endcap',
+    'Mantra_ovrl_maxpt'  : 'TkMu, overlap',
+    'Mantra_ovrl_mindpt' : 'TkMu, overlap',
 }
 
 # TP_scan_file = 'TP_scans/rate_fwd_TP_muonTrk.txt'

@@ -124,14 +124,20 @@ class plotMaker:
 
         ## first plot all plots intended to be done alone
         print "... plotting individual plots"
+        # print "... I will plot:", len(self.histos), 'histos'
         for hname in self.histos:
             h = self.histos[hname]
             if not self.plot_alone_if_in_overlay and hname in self.all_to_overlay:
                 continue
             plotname = self.plot_name_proto.format(hname=hname)
+
+            if 'logy' in h.properties:
+                self.c1.SetLogy(h.properties['logy'])    
             h.histo.Draw()
             self.c1.Print(plotname, 'pdf')
             if do_png: self.c1.Print(plotname.replace('.pdf', '.png'), 'png')
+            
+            self.c1.SetLogy(False) ## always reset to default value
 
         ## now plot the overlays
         print "... plotting overlays"
@@ -175,6 +181,7 @@ class plotMaker:
         ## dump to file if required - just the individual plots, no need for overlays
         if self.rootfile_output:
             print "... saving to file: ", self.rootfile_output.GetName()
+            # print "... I will save:", len(self.histos), 'histos to file'
             for hname in self.histos:
                 h = self.histos[hname]
                 self.rootfile_output.cd()

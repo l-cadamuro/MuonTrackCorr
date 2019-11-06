@@ -14,6 +14,19 @@
 # python make_eff_plots.py --in ../matched_tree_SingleMu_PU200_DWcorr_relax0p5At6GeV_mults.root      --out efficiencies/effs_SingleMu_PU200_DWcorr_relax0p5At6GeV_mults.root
 # python make_eff_plots.py --in ../matched_tree_SingleMu_PU200_TPcorr_mults.root                     --out efficiencies/effs_SingleMu_PU200_TPcorr_mults.root
 
-python make_eff_plots.py --in ../matchedTree_MuGun_PU0_EMTFpp.root        --out efficiencies/effs_SingleMu_PU0_TDR_MC.root
-python make_eff_plots.py --in ../matchedTree_MuGun_PU200_EMTFpp.root      --out efficiencies/effs_SingleMu_PU200_TDR_MC.root
-python make_eff_plots.py --in ../matchedTree_MuGun_PU300_EMTFpp.root      --out efficiencies/effs_SingleMu_PU300_TDR_MC.root
+# python make_eff_plots.py --in ../matchedTree_MuGun_PU0_EMTFpp.root        --out efficiencies/effs_SingleMu_PU0_TDR_MC.root
+# python make_eff_plots.py --in ../matchedTree_MuGun_PU200_EMTFpp.root      --out efficiencies/effs_SingleMu_PU200_TDR_MC.root
+# python make_eff_plots.py --in ../matchedTree_MuGun_PU300_EMTFpp.root      --out efficiencies/effs_SingleMu_PU300_TDR_MC.root
+
+# python make_eff_plots.py --in ../matchedTree_MuGun_PU0_alldetector.root      --out efficiencies/effs_SingleMu_PU0_alldetector.root
+# python make_eff_plots.py --in ../matchedTree_MuGun_PU200_alldetector.root    --out efficiencies/effs_SingleMu_PU200_alldetector.root
+# python make_eff_plots.py --in ../matchedTree_MuGun_PU300_alldetector.root    --out efficiencies/effs_SingleMu_PU300_alldetector.root
+
+
+python make_eff_plots.py --in ../matchedTree_MuGun_PU0_alldetector_mindpt.root      --out efficiencies/effs_SingleMu_PU0_alldetector_mindpt.root
+python make_eff_plots.py --in ../matchedTree_MuGun_PU200_alldetector_mindpt.root    --out efficiencies/effs_SingleMu_PU200_alldetector_mindpt.root
+python make_eff_plots.py --in ../matchedTree_MuGun_PU300_alldetector_mindpt.root    --out efficiencies/effs_SingleMu_PU300_alldetector_mindpt.root
+
+python make_eff_plots.py --in ../matchedTree_MuGun_PU0_alldetector_maxpt.root      --out efficiencies/effs_SingleMu_PU0_alldetector_maxpt.root
+python make_eff_plots.py --in ../matchedTree_MuGun_PU200_alldetector_maxpt.root    --out efficiencies/effs_SingleMu_PU200_alldetector_maxpt.root
+python make_eff_plots.py --in ../matchedTree_MuGun_PU300_alldetector_maxpt.root    --out efficiencies/effs_SingleMu_PU300_alldetector_maxpt.root

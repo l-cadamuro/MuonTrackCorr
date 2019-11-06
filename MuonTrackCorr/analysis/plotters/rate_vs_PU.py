@@ -74,8 +74,8 @@ if icfg == 3:
     
     PU_points_all = collections.OrderedDict()
     PU_points_all['EMTF']     = collections.OrderedDict()
-    PU_points_all['TkMu']     = collections.OrderedDict()
     PU_points_all['TkMuStub'] = collections.OrderedDict()
+    PU_points_all['TkMu']     = collections.OrderedDict()
 
     PU_points_all['EMTF'][140] = ('../rate_EMTFpp_140PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
     PU_points_all['EMTF'][200] = ('../rate_EMTFpp_200PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
@@ -95,6 +95,89 @@ if icfg == 3:
     mcol = ROOT.kBlue
     dofit = False
     oname = 'TDR_plots/rate_vs_PU_allfinders.pdf'
+
+### all together
+if icfg == 4:
+    MTFs  = ['EMTF',   'TkMu']
+    legs  = ['EMTF++', 'Track + muon']
+    mcols = [ROOT.kBlue, ROOT.kRed]
+    
+    PU_points_all = collections.OrderedDict()
+    PU_points_all['EMTF']     = collections.OrderedDict()
+    PU_points_all['TkMuStub'] = collections.OrderedDict()
+    PU_points_all['TkMu']     = collections.OrderedDict()
+
+    PU_points_all['EMTF'][140] = ('../rate_EMTFpp_140PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+    PU_points_all['EMTF'][200] = ('../rate_EMTFpp_200PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+    PU_points_all['EMTF'][250] = ('../rate_EMTFpp_250PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+    PU_points_all['EMTF'][300] = ('../rate_EMTFpp_300PU.root', 'rate_EMTF_lead_mu_pt', 'EMTF_lead_mu_pt')
+
+    PU_points_all['TkMu'][140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+    PU_points_all['TkMu'][200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+    PU_points_all['TkMu'][250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+    PU_points_all['TkMu'][300] = ('../rate_EMTFpp_300PU.root', 'rate_TPTkMu_lead_mu_pt', 'TPTkMu_lead_mu_pt')
+
+    PU_points_all['TkMuStub'][140] = ('../rate_EMTFpp_140PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+    PU_points_all['TkMuStub'][200] = ('../rate_EMTFpp_200PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+    PU_points_all['TkMuStub'][250] = ('../rate_EMTFpp_250PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+    PU_points_all['TkMuStub'][300] = ('../rate_EMTFpp_300PU.root', 'rate_TPTkMuStub_lead_mu_pt', 'TPTkMuStub_lead_mu_pt')
+
+    mcol = ROOT.kBlue
+    dofit = False
+    oname = 'TDR_plots/rate_vs_PU_EMTF_TkMu.pdf'
+
+######### mantra all detector
+### all together
+if icfg == 5:
+    MTFs  = ['Mantra_barr', 'Mantra_ovrl', "Mantra_endc"]
+    legs  = ['Mantra barrel', 'Mantra overlap', 'Mantra endcap']
+    mcols = [ROOT.kRed, ROOT.kGreen+2, ROOT.kBlue]
+    
+    PU_points_all = collections.OrderedDict()
+    PU_points_all['Mantra_barr']     = collections.OrderedDict()
+    PU_points_all['Mantra_ovrl']     = collections.OrderedDict()
+    PU_points_all['Mantra_endc']     = collections.OrderedDict()
+
+    PU_points_all['Mantra_barr'][140] = ('../rate_alldetectors_140PU.root', 'rate_Mantra_TkMu_barr_lead_mu_pt', 'Mantra_TkMu_barr_lead_mu_pt')
+    PU_points_all['Mantra_barr'][200] = ('../rate_alldetectors_200PU.root', 'rate_Mantra_TkMu_barr_lead_mu_pt', 'Mantra_TkMu_barr_lead_mu_pt')
+    PU_points_all['Mantra_barr'][250] = ('../rate_alldetectors_250PU.root', 'rate_Mantra_TkMu_barr_lead_mu_pt', 'Mantra_TkMu_barr_lead_mu_pt')
+    PU_points_all['Mantra_barr'][300] = ('../rate_alldetectors_300PU.root', 'rate_Mantra_TkMu_barr_lead_mu_pt', 'Mantra_TkMu_barr_lead_mu_pt')
+
+    PU_points_all['Mantra_ovrl'][140] = ('../rate_alldetectors_140PU.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    PU_points_all['Mantra_ovrl'][200] = ('../rate_alldetectors_200PU.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    PU_points_all['Mantra_ovrl'][250] = ('../rate_alldetectors_250PU.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    PU_points_all['Mantra_ovrl'][300] = ('../rate_alldetectors_300PU.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+
+    PU_points_all['Mantra_endc'][140] = ('../rate_alldetectors_140PU.root', 'rate_Mantra_TkMu_endc_lead_mu_pt', 'Mantra_TkMu_endc_lead_mu_pt')
+    PU_points_all['Mantra_endc'][200] = ('../rate_alldetectors_200PU.root', 'rate_Mantra_TkMu_endc_lead_mu_pt', 'Mantra_TkMu_endc_lead_mu_pt')
+    PU_points_all['Mantra_endc'][250] = ('../rate_alldetectors_250PU.root', 'rate_Mantra_TkMu_endc_lead_mu_pt', 'Mantra_TkMu_endc_lead_mu_pt')
+    PU_points_all['Mantra_endc'][300] = ('../rate_alldetectors_300PU.root', 'rate_Mantra_TkMu_endc_lead_mu_pt', 'Mantra_TkMu_endc_lead_mu_pt')
+
+    mcol = ROOT.kBlue
+    dofit = False
+    oname = 'TDR_plots/rate_vs_PU_Mantra.pdf'
+
+### Mantra overlap - min dpt
+if icfg == 6:
+    PU_points[140] = ('../rate_alldetectors_140PU_mindpt.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    PU_points[200] = ('../rate_alldetectors_200PU_mindpt.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    PU_points[250] = ('../rate_alldetectors_250PU_mindpt.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    PU_points[300] = ('../rate_alldetectors_300PU_mindpt.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    mcol = ROOT.kGreen+1
+    dofit = False
+    oname = 'TDR_plots/rate_vs_PU_Mantra_Overlap_mindpt.pdf'
+    frame_ymax = 11
+
+### Mantra overlap - min dpt
+if icfg == 7:
+    PU_points[140] = ('../rate_alldetectors_140PU_maxpt.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    PU_points[200] = ('../rate_alldetectors_200PU_maxpt.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    PU_points[250] = ('../rate_alldetectors_250PU_maxpt.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    PU_points[300] = ('../rate_alldetectors_300PU_maxpt.root', 'rate_Mantra_TkMu_ovrl_lead_mu_pt', 'Mantra_TkMu_ovrl_lead_mu_pt')
+    mcol = ROOT.kGreen+1
+    dofit = False
+    oname = 'TDR_plots/rate_vs_PU_Mantra_Overlap_maxpt.pdf'
+    frame_ymax = 11
 
 
 threshold = 20.0 # in GeV
@@ -172,6 +255,12 @@ if len(PU_points) > 0:
     if dofit: gr.Fit(f, "N")
 
     frame.SetMaximum(1.15*max(rates))
+    try:
+        frame_ymax
+    except NameError:
+        pass
+    else:
+        frame.SetMaximum(frame_ymax)
 
     frame.Draw()
     if dofit: f.Draw('same')
@@ -182,7 +271,15 @@ else:
     mg = ROOT.TMultiGraph()
     graphs = []
     all_rates = []
-    for idx, (tkfinder, PU_points) in enumerate(PU_points_all.items()):
+    # for idx, (tkfinder, PU_points) in enumerate(PU_points_all.items()):
+
+    #     if tkfinder not in MTFs:
+    #         continue
+    for idx, tkfinder in enumerate(MTFs):
+
+        PU_points = PU_points_all[tkfinder]
+
+        print '.... doing', tkfinder
 
         gr = ROOT.TGraphAsymmErrors()
         rates = []
@@ -223,6 +320,14 @@ else:
     maxs = [max(r) for r in all_rates]
     frame.SetMaximum(1.15*max(maxs))
     frame.SetMinimum(0)
+
+    try:
+        frame_ymax
+    except NameError:
+        pass
+    else:
+        frame.SetMaximum(frame_ymax)
+
 
     frame.Draw()
     if dofit: f.Draw('same')

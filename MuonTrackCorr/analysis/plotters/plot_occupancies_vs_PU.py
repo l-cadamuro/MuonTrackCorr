@@ -44,49 +44,181 @@ inputs = {
     300 : 'ZB_PU300_plots_ZeroBias/histos.root',
 }
 
+
+outfolder = 'ZB_plots_vs_pt' ## or None for no plots
+
 if icfg == 0: ## tracks
     print "... doing tracks pt > 5 GeV"
     hname = 'n_trk_ptgt5_ext'
     oname = "avg_track5_vs_PU.pdf"
-    title = "Average N_{tracks} with p_{T} > 5 GeV in positive endcap"
+    title = "Average N_{tracks} with p_{T} > 5 GeV, #chi^{2} < 100 and N_{stubs} #geq 4 in positive endcap"
 
 if icfg == 1: ## tracks
     print "... doing tracks pt > 10 GeV"
     hname = 'n_trk_ptgt10'
     oname = "avg_track10_vs_PU.pdf"
-    title = "Average N_{tracks} with p_{T} > 10 GeV in positive endcap"
+    title = "Average N_{tracks} with p_{T} > 10 GeV, #chi^{2} < 100 and N_{stubs} #geq 4 in positive endcap"
 
 if icfg == 2: ## tracks
     print "... doing tracks pt > 20 GeV"
     hname = 'n_trk_ptgt20'
     oname = "avg_track20_vs_PU.pdf"
-    title = "Average N_{tracks} with p_{T} > 20 GeV in positive endcap"
+    title = "Average N_{tracks} with p_{T} > 20 GeV, #chi^{2} < 100 and N_{stubs} #geq 4 in positive endcap"
+
+#################
+
+if icfg == 3: ## tracks barrel
+    print "... doing tracks barrel pt > 5 GeV"
+    hname = 'n_trk_barr_ptgt5_ext'
+    oname = "avg_track5_barr_vs_PU.pdf"
+    title = "Average N_{tracks} with p_{T} > 5 GeV, #chi^{2} < 100 and N_{stubs} #geq 4  in barrel"
+
+if icfg == 4: ## tracks barrel
+    print "... doing tracks barrel pt > 10 GeV"
+    hname = 'n_trk_barr_ptgt10'
+    oname = "avg_track10_barr_vs_PU.pdf"
+    title = "Average N_{tracks} with p_{T} > 10 GeV, #chi^{2} < 100 and N_{stubs} #geq 4  in barrel"
+
+if icfg == 5: ## tracks barrel
+    print "... doing tracks barrel pt > 20 GeV"
+    hname = 'n_trk_barr_ptgt20'
+    oname = "avg_track20_barr_vs_PU.pdf"
+    title = "Average N_{tracks} with p_{T} > 20 GeV, #chi^{2} < 100 and N_{stubs} #geq 4  in barrel"
+
+############
 
 
-if icfg == 3: ## EMTF
+if icfg == 6: ## tracks overlap
+    print "... doing tracks overlap pt > 5 GeV"
+    hname = 'n_trk_ovrl_ptgt5_ext'
+    oname = "avg_track5_ovrl_vs_PU.pdf"
+    title = "Average N_{tracks} with p_{T} > 5 GeV, #chi^{2} < 100 and N_{stubs} #geq 4  in positive overlap"
+
+if icfg == 7: ## tracks overlap
+    print "... doing tracks overlap pt > 10 GeV"
+    hname = 'n_trk_ovrl_ptgt10'
+    oname = "avg_track10_ovrl_vs_PU.pdf"
+    title = "Average N_{tracks} with p_{T} > 10 GeV, #chi^{2} < 100 and N_{stubs} #geq 4  in positive overlap"
+
+if icfg == 8: ## tracks overlap
+    print "... doing tracks overlap pt > 20 GeV"
+    hname = 'n_trk_ovrl_ptgt20'
+    oname = "avg_track20_ovrl_vs_PU.pdf"
+    title = "Average N_{tracks} with p_{T} > 20 GeV, #chi^{2} < 100 and N_{stubs} #geq 4  in positive overlap"
+
+#################
+
+if icfg == 9: ## EMTF
     print "... doing EMTF++"
     hname = 'EMTF_mu_endcap_pos'
     oname = "avg_EMTFpp_vs_PU.pdf"
     title = "Average N_{EMTF++} in positive endcap"
 
-if icfg == 4: ## TkMu
+if icfg == 10: ## TkMu
     print "... doing TkMu"
     hname = 'TkMu_endcap_pos'
     oname = "avg_TkMu_vs_PU.pdf"
     title = "Average N_{TkMu} in positive endcap"
 
-if icfg == 5: ## TkMu
+if icfg == 11: ## TkMu
     print "... doing TkMuStub"
     hname = 'TkMuStub_endcap_pos'
     oname = "avg_TkMuStub_vs_PU.pdf"
     title = "Average N_{TkMuStub} in positive endcap"
 
-if icfg == 6: ## CSC S1
+if icfg == 12: ## CSC S1
     print "... doing CSC S1"
     hname = 'n_CSC_S1_ext'
     oname = "avg_CSC_S1_vs_PU.pdf"
     title = "Average N_{CSC S1} in positive endcap"
 
+
+###############
+
+if icfg == 13: ## TkMu true
+    print "... doing TkMu true"
+    hname = 'TkMu_endcap_pos_genMuMatch'
+    oname = "avg_TkMu_genMuMatch_vs_PU.pdf"
+    title = "Average N_{TkMu} (true #mu) in positive endcap"
+
+if icfg == 14: ## TkMu fake
+    print "... doing TkMu fake"
+    hname = 'TkMu_endcap_pos_genMuNoMatch'
+    oname = "avg_TkMu_genMuNoMatch_vs_PU.pdf"
+    title = "Average N_{TkMu} (fake #mu) in positive endcap"
+
+if icfg == 15: ## TkMu Stub true
+    print "... doing TkMuStub true"
+    hname = 'TkMuStub_endcap_pos_genMuMatch'
+    oname = "avg_TkMuStub_genMuMatch_vs_PU.pdf"
+    title = "Average N_{TkMuStub} (true #mu) in positive endcap"
+
+if icfg == 16: ## TkMu Stub fake
+    print "... doing TkMuStub fake"
+    hname = 'TkMuStub_endcap_pos_genMuNoMatch'
+    oname = "avg_TkMuStub_genMuNoMatch_vs_PU.pdf"
+    title = "Average N_{TkMuStub} (fake #mu) in positive endcap"
+
+########################################
+
+if icfg == 17: ## tracks
+    print "... doing tracks pt > 5 GeV, chi2 < 50"
+    hname = 'n_trk_ptgt5_ext_chi2lt50'
+    oname = "avg_track5_vs_PU_chi2lt50.pdf"
+    title = "Average N_{tracks} with p_{T} > 5 GeV, #chi^{2} < 50 and N_{stubs} #geq 4 in positive endcap"
+
+if icfg == 18: ## tracks
+    print "... doing tracks pt > 10 GeV, chi2 < 50"
+    hname = 'n_trk_ptgt10_chi2lt50'
+    oname = "avg_track10_vs_PU_chi2lt50.pdf"
+    title = "Average N_{tracks} with p_{T} > 10 GeV, #chi^{2} < 50 and N_{stubs} #geq 4 in positive endcap"
+
+if icfg == 19: ## tracks
+    print "... doing tracks pt > 20 GeV, chi2 < 50"
+    hname = 'n_trk_ptgt20_chi2lt50'
+    oname = "avg_track20_vs_PU_chi2lt50.pdf"
+    title = "Average N_{tracks} with p_{T} > 20 GeV, #chi^{2} < 50 and N_{stubs} #geq 4 in positive endcap"
+
+#################
+
+# if icfg == 20: ## tracks barrel
+#     print "... doing tracks barrel pt > 5 GeV, chi2 < 50"
+#     hname = 'n_trk_barr_ptgt5_ext_chi2lt50'
+#     oname = "avg_track5_barr_vs_PU_chi2lt50.pdf"
+#     title = "Average N_{tracks} with p_{T} > 5 GeV, #chi^{2} < 50 and N_{stubs} #geq 4  in barrel"
+
+# if icfg == 21: ## tracks barrel
+#     print "... doing tracks barrel pt > 10 GeV, chi2 < 50"
+#     hname = 'n_trk_barr_ptgt10_chi2lt50'
+#     oname = "avg_track10_barr_vs_PU_chi2lt50.pdf"
+#     title = "Average N_{tracks} with p_{T} > 10 GeV, #chi^{2} < 50 and N_{stubs} #geq 4  in barrel"
+
+# if icfg == 22: ## tracks barrel
+#     print "... doing tracks barrel pt > 20 GeV, chi2 < 50"
+#     hname = 'n_trk_barr_ptgt20_chi2lt50'
+#     oname = "avg_track20_barr_vs_PU_chi2lt50.pdf"
+#     title = "Average N_{tracks} with p_{T} > 20 GeV, #chi^{2} < 50 and N_{stubs} #geq 4  in barrel"
+
+# ############
+
+
+# if icfg == 23: ## tracks overlap
+#     print "... doing tracks overlap pt > 5 GeV, chi2 < 50"
+#     hname = 'n_trk_ovrl_ptgt5_ext_chi2lt50'
+#     oname = "avg_track5_ovrl_vs_PU_chi2lt50.pdf"
+#     title = "Average N_{tracks} with p_{T} > 5 GeV, #chi^{2} < 50 and N_{stubs} #geq 4  in positive overlap"
+
+# if icfg == 24: ## tracks overlap
+#     print "... doing tracks overlap pt > 10 GeV, chi2 < 50"
+#     hname = 'n_trk_ovrl_ptgt10_chi2lt50'
+#     oname = "avg_track10_ovrl_vs_PU_chi2lt50.pdf"
+#     title = "Average N_{tracks} with p_{T} > 10 GeV, #chi^{2} < 50 and N_{stubs} #geq 4  in positive overlap"
+
+# if icfg == 25: ## tracks overlap
+#     print "... doing tracks overlap pt > 20 GeV, chi2 < 50"
+#     hname = 'n_trk_ovrl_ptgt20_chi2lt50'
+#     oname = "avg_track20_ovrl_vs_PU_chi2lt50.pdf"
+#     title = "Average N_{tracks} with p_{T} > 20 GeV, #chi^{2} < 50 and N_{stubs} #geq 4  in positive overlap"
 
 ## retrieve the values
 vals = []
@@ -127,7 +259,7 @@ gr.SetMarkerSize(1.2)
 gr.SetMarkerColor(ROOT.kBlue)
 gr.SetLineColor(ROOT.kBlue)
 
-gr.Print()
+# gr.Print()
 # f = ROOT.TF1('lin', '[0]*x', 90, 300)
 # f = ROOT.TF1('lin', '[0]*x', xmin, xmax)
 # f.SetLineColor(ROOT.kGray)
@@ -176,4 +308,6 @@ cmsheader_1.Draw()
 cmsheader_2.Draw()
 cmsheader_3.Draw()
 
+if outfolder:
+    oname = outfolder + '/' + oname
 c1.Print(oname, 'pdf')

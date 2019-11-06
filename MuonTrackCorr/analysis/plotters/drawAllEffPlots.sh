@@ -17,14 +17,38 @@
 #################
 ####################### Plots for the TDR
 
-python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_pt_5.py           TDR_plots/TDR_Eff_vs_pt_5.pdf 
-python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_pt_20.py          TDR_plots/TDR_Eff_vs_pt_20.pdf
+# python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_pt_5.py           TDR_plots/TDR_Eff_vs_pt_5.pdf 
+# python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_pt_20.py          TDR_plots/TDR_Eff_vs_pt_20.pdf
+# # ##
+# python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_abseta_5to20.py   TDR_plots/TDR_Eff_vs_abseta_5to20.pdf 
+# python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_abseta_20.py      TDR_plots/TDR_Eff_vs_abseta_20.pdf
 # ##
-python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_abseta_5to20.py   TDR_plots/TDR_Eff_vs_abseta_5to20.pdf 
-python draw_eff_plots.py  eff_plots_cfgs/TDR_Eff_vs_abseta_20.py      TDR_plots/TDR_Eff_vs_abseta_20.pdf
-##
-python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_pt_5.py           TDR_plots/TDR_TkMuStub_Eff_vs_pt_5.pdf 
-python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_pt_20.py          TDR_plots/TDR_TkMuStub_Eff_vs_pt_20.pdf
-##
-python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_abseta_5to20.py   TDR_plots/TDR_TkMuStub_Eff_vs_abseta_5to20.pdf 
-python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_abseta_20.py      TDR_plots/TDR_TkMuStub_Eff_vs_abseta_20.pdf
+# python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_pt_5.py           TDR_plots/TDR_TkMuStub_Eff_vs_pt_5.pdf 
+# python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_pt_20.py          TDR_plots/TDR_TkMuStub_Eff_vs_pt_20.pdf
+# ##
+# python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_abseta_5to20.py   TDR_plots/TDR_TkMuStub_Eff_vs_abseta_5to20.pdf 
+# python draw_eff_plots.py  eff_plots_cfgs/TDR_TkMuStub_Eff_vs_abseta_20.py      TDR_plots/TDR_TkMuStub_Eff_vs_abseta_20.pdf
+
+####################
+
+## python draw_eff_plots.py  eff_plots_cfgs/Mantra_allDets_Eff_vs_eta_0.py  TDR_plots/Mantra_allDets_Eff_vs_eta_0.pdf
+## python draw_eff_plots.py  eff_plots_cfgs/Mantra_allDets_Eff_vs_eta_20.py TDR_plots/Mantra_allDets_Eff_vs_eta_20.pdf
+
+## python draw_eff_plots.py  eff_plots_cfgs/Mantra_overlap_Eff_vs_pt_0.py   TDR_plots/Mantra_overlap_Eff_vs_pt_0.pdf
+## python draw_eff_plots.py  eff_plots_cfgs/Mantra_overlap_Eff_vs_eta_0.py   TDR_plots/Mantra_overlap_Eff_vs_eta_0.pdf
+
+
+
+# python draw_eff_plots.py  eff_plots_cfgs/Mantra_overlap_Eff_vs_pt_0_mindpt.py   TDR_plots/Mantra_overlap_Eff_vs_pt_0_mindpt.pdf
+# python draw_eff_plots.py  eff_plots_cfgs/Mantra_overlap_Eff_vs_pt_0_maxpt.py    TDR_plots/Mantra_overlap_Eff_vs_pt_0_maxpt.pdf
+
+# python draw_eff_plots.py  eff_plots_cfgs/Mantra_overlap_Eff_vs_pt_20_mindpt.py   TDR_plots/Mantra_overlap_Eff_vs_pt_20_mindpt.pdf
+# python draw_eff_plots.py  eff_plots_cfgs/Mantra_overlap_Eff_vs_pt_20_maxpt.py    TDR_plots/Mantra_overlap_Eff_vs_pt_20_maxpt.pdf
+
+
+
+python draw_eff_plots.py  eff_plots_cfgs/Mantra_overlap_Eff_vs_eta_0_mindpt.py   TDR_plots/Mantra_overlap_Eff_vs_eta_0_mindpt.pdf
+python draw_eff_plots.py  eff_plots_cfgs/Mantra_overlap_Eff_vs_eta_0_maxpt.py    TDR_plots/Mantra_overlap_Eff_vs_eta_0_maxpt.pdf
+
+python draw_eff_plots.py  eff_plots_cfgs/Mantra_overlap_Eff_vs_eta_20_mindpt.py   TDR_plots/Mantra_overlap_Eff_vs_eta_20_mindpt.pdf
+python draw_eff_plots.py  eff_plots_cfgs/Mantra_overlap_Eff_vs_eta_20_maxpt.py    TDR_plots/Mantra_overlap_Eff_vs_eta_20_maxpt.pdf

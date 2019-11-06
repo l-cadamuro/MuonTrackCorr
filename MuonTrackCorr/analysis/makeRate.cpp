@@ -2,6 +2,8 @@
 #include "MuTkTree.h"
 #include "Correlator.h"
 #include "Correlator_L1TTgroup_impl.h"
+#include "MantraCorr.h"
+#include "GenericDataFormat.h"
 #include "TH1.h"
 #include "TH2.h"
 #include <string>
@@ -61,6 +63,94 @@ int appendFromFileList (TChain* chain, string filename)
     return nfiles;
 }
 
+double deg_to_rad(double x) {
+    return (x * TMath::Pi()/180.) ;
+}
+
+double eta_to_theta(double x){
+    //  give theta in rad 
+    return (2. * TMath::ATan(TMath::Exp(-1.*x)));
+}
+
+double to_mpio2_pio2(double x){
+    //  put the angle in radians between -pi/2 and pi/2
+    while (x >= 0.5*TMath::Pi())
+        x -= TMath::Pi();
+    while (x < -0.5*TMath::Pi())
+        x += TMath::Pi();
+    return x;
+}
+
+// dump and convert tracks to the format needed for the correlator
+std::vector<track_df> MuTkTree_to_trkvec(MuTkTree& mtkt)
+{
+    std::vector<track_df> result (*mtkt.n_L1TT_trk);
+    for (uint itrk = 0; itrk < *mtkt.n_L1TT_trk; ++itrk)
+    {
+
+        result.at(itrk).pt      = mtkt.L1TT_trk_pt.At(itrk);
+        result.at(itrk).eta     = mtkt.L1TT_trk_eta.At(itrk);
+        result.at(itrk).theta   = to_mpio2_pio2(eta_to_theta(mtkt.L1TT_trk_eta.At(itrk)));
+        result.at(itrk).phi     = mtkt.L1TT_trk_phi.At(itrk);
+        result.at(itrk).nstubs  = mtkt.L1TT_trk_nstubs.At(itrk);
+        result.at(itrk).chi2    = mtkt.L1TT_trk_chi2.At(itrk);
+        result.at(itrk).charge  = mtkt.L1TT_trk_charge.At(itrk);
+    }
+
+    return result;
+}
+
+// dump and convert muons to the format needed for the correlator
+std::vector<muon_df> MuTkTree_to_muvec(MuTkTree& mtkt, std::string system)
+{
+
+    if (system == "barrel")
+    {
+        std::vector<muon_df> result (*mtkt.n_barrel_mu);
+        for (uint imu = 0; imu < *mtkt.n_barrel_mu; ++imu)
+        {
+            result.at(imu).pt     = mtkt.barrel_mu_pt.At(imu);
+            result.at(imu).eta    = mtkt.barrel_mu_eta.At(imu);
+            result.at(imu).theta  = to_mpio2_pio2(eta_to_theta(mtkt.barrel_mu_eta.At(imu)));
+            result.at(imu).phi    = mtkt.barrel_mu_phi.At(imu);
+            result.at(imu).charge = mtkt.barrel_mu_charge.At(imu);
+        }
+        return result;
+    }
+
+    else if (system == "overlap")
+    {
+        std::vector<muon_df> result (*mtkt.n_ovrlap_mu);
+        for (uint imu = 0; imu < *mtkt.n_ovrlap_mu; ++imu)
+        {
+            result.at(imu).pt     = mtkt.ovrlap_mu_pt.At(imu);
+            result.at(imu).eta    = mtkt.ovrlap_mu_eta.At(imu);
+            result.at(imu).theta  = to_mpio2_pio2(eta_to_theta(mtkt.ovrlap_mu_eta.At(imu)));
+            result.at(imu).phi    = mtkt.ovrlap_mu_phi.At(imu);
+            result.at(imu).charge = mtkt.ovrlap_mu_charge.At(imu);
+        }
+        return result;
+    }
+
+    else if (system == "endcap")
+    {
+        std::vector<muon_df> result (*mtkt.n_EMTF_mu);
+        for (uint imu = 0; imu < *mtkt.n_EMTF_mu; ++imu)
+        {
+            result.at(imu).pt     = mtkt.EMTF_mu_pt.At(imu);
+            result.at(imu).eta    = mtkt.EMTF_mu_eta.At(imu);
+            result.at(imu).theta  = to_mpio2_pio2(eta_to_theta(mtkt.EMTF_mu_eta.At(imu)));
+            result.at(imu).phi    = deg_to_rad(mtkt.EMTF_mu_phi.At(imu));
+            result.at(imu).charge = mtkt.EMTF_mu_charge.At(imu);
+        }
+        return result;
+    }
+
+    else
+        throw std::runtime_error("MuTkTree_to_muvec : cannot understand system");
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -74,6 +164,11 @@ int main(int argc, char** argv)
         outputname = argv[2];
     }
 
+    string mantraTrkArb = "MinDeltaPt";
+    if (argc > 3)
+    {
+        mantraTrkArb = argv[3];
+    }
 
     int quantile = 99;
     bool doRelax = true;
@@ -87,6 +182,7 @@ int main(int argc, char** argv)
 
     cout << "... running on filelist " << filelist << endl;
     cout << "... saving output to " << outputname << endl;
+    cout << "... MAnTra track arbitration type " << mantraTrkArb << endl;
 
     TChain* ch = new TChain("Ntuplizer/MuonTrackTree");
     MuTkTree mtkt (ch);
@@ -103,6 +199,11 @@ int main(int argc, char** argv)
     RateCalculator rc_TPTkMuStub("TPTkMuStub");
     RateCalculator rc_TPTkMuStub_truemu("TPTkMuStub_truemu");
     RateCalculator rc_TPTkMuStub_fakemu("TPTkMuStub_fakemu");
+    //
+    RateCalculator rc_Mantra_TkMu_barr("Mantra_TkMu_barr");
+    RateCalculator rc_Mantra_TkMu_ovrl("Mantra_TkMu_ovrl");
+    RateCalculator rc_Mantra_TkMu_endc("Mantra_TkMu_endc");
+
 
     rc_EMTF.setStyle(kBlue);
     rc_TPTkMu.setStyle(kRed);
@@ -156,6 +257,43 @@ int main(int argc, char** argv)
     Correlator_L1TTgroup_impl corrL1TT_impl;
 
     // ---------------------------------------------
+
+    // create the correlators
+    auto bounds_barrel = prepare_corr_bounds  ("matching_windows_barrel/matching_windows_boundaries.root", "h_dphi_l");
+    TFile* fIn_barr_theta = TFile::Open       ("matching_windows_barrel/matching_windows_theta_q99.root");
+    TFile* fIn_barr_phi   = TFile::Open       ("matching_windows_barrel/matching_windows_phi_q99.root");
+    MantraCorr mantracorr_barrel (bounds_barrel, fIn_barr_theta, fIn_barr_phi, "mantrabarrel");
+    mantracorr_barrel.set_safety_factor(0.5, 0.5);
+    mantracorr_barrel.setArbitrationType(mantraTrkArb);
+    // mantracorr_barrel.setArbitrationType("MinDeltaPt");
+    // mantracorr_barrel.setArbitrationType("MaxPt");
+    fIn_barr_theta->Close();
+    fIn_barr_phi->Close();
+
+    auto bounds_ovrlap = prepare_corr_bounds  ("matching_windows_overlap/matching_windows_boundaries.root", "h_dphi_l");
+    TFile* fIn_ovrl_theta = TFile::Open       ("matching_windows_overlap/matching_windows_theta_q99.root");
+    TFile* fIn_ovrl_phi   = TFile::Open       ("matching_windows_overlap/matching_windows_phi_q99.root");    
+    MantraCorr mantracorr_ovrlap (bounds_ovrlap, fIn_ovrl_theta, fIn_ovrl_phi, "mantraovrlap");
+    mantracorr_ovrlap.set_safety_factor(0.5, 0.5);
+    mantracorr_ovrlap.setArbitrationType(mantraTrkArb);
+    // mantracorr_ovrlap.setArbitrationType("MinDeltaPt");
+    // mantracorr_ovrlap.setArbitrationType("MaxPt");
+    fIn_ovrl_theta->Close();
+    fIn_ovrl_phi->Close();
+
+    auto bounds_endcap = prepare_corr_bounds  ("matching_windows_endcap/matching_windows_boundaries.root", "h_dphi_l");
+    TFile* fIn_endc_theta = TFile::Open       ("matching_windows_endcap/matching_windows_theta_q99.root");
+    TFile* fIn_endc_phi   = TFile::Open       ("matching_windows_endcap/matching_windows_phi_q99.root");
+    MantraCorr mantracorr_endcap (bounds_endcap, fIn_endc_theta, fIn_endc_phi, "mantraendcap");
+    mantracorr_endcap.set_safety_factor(0.5, 0.5);
+    mantracorr_endcap.setArbitrationType(mantraTrkArb);
+    // mantracorr_endcap.setArbitrationType("MinDeltaPt");
+    // mantracorr_endcap.setArbitrationType("MaxPt");
+    fIn_endc_theta->Close();
+    fIn_endc_phi->Close();
+
+    // ---------------------------------------------
+
 
     for (uint iEv = 0; true; ++iEv)
     {
@@ -229,6 +367,46 @@ int main(int argc, char** argv)
                 rc_MyTPTkMu.feedPt(mtkt.L1TT_trk_pt.At(itrk));
         }
 
+        // ManTra correlators - for the 3 regions of the detector
+        auto barrel_muons = MuTkTree_to_muvec(mtkt, "barrel");
+        auto ovrlap_muons = MuTkTree_to_muvec(mtkt, "overlap");
+        auto endcap_muons = MuTkTree_to_muvec(mtkt, "endcap");
+        auto tracks       = MuTkTree_to_trkvec(mtkt);
+
+        auto barrel_tkmus_idx = mantracorr_barrel.find_match(tracks, barrel_muons);
+        auto ovrlap_tkmus_idx = mantracorr_ovrlap.find_match(tracks, ovrlap_muons);
+        auto endcap_tkmus_idx = mantracorr_endcap.find_match(tracks, endcap_muons);
+
+        // barrel
+        for (uint imu = 0; imu < barrel_tkmus_idx.size(); ++imu)
+        {
+            int idx = barrel_tkmus_idx.at(imu);
+            if (idx < 0) continue;
+            track_df trk = tracks.at(idx);
+            if (std::abs(trk.eta) > 0.8) continue;            
+            rc_Mantra_TkMu_barr.feedPt(trk.pt);
+        }
+
+        // overlap
+        for (uint imu = 0; imu < ovrlap_tkmus_idx.size(); ++imu)
+        {
+            int idx = ovrlap_tkmus_idx.at(imu);
+            if (idx < 0) continue;
+            track_df trk = tracks.at(idx);
+            if (std::abs(trk.eta) < 0.8 || std::abs(trk.eta) > 1.2) continue;
+            rc_Mantra_TkMu_ovrl.feedPt(trk.pt);
+        }
+
+        for (uint imu = 0; imu < endcap_tkmus_idx.size(); ++imu)
+        {
+            int idx = endcap_tkmus_idx.at(imu);
+            if (idx < 0) continue;
+            track_df trk = tracks.at(idx);
+            if (std::abs(trk.eta) < 1.2) continue;
+            rc_Mantra_TkMu_endc.feedPt(trk.pt);
+        }
+
+
         // make the rate plots here, once all pt filled
         rc_EMTF.process();
         rc_TPTkMu.process();
@@ -239,6 +417,9 @@ int main(int argc, char** argv)
         rc_TPTkMuStub.process();
         rc_TPTkMuStub_truemu.process();
         rc_TPTkMuStub_fakemu.process();
+        rc_Mantra_TkMu_barr.process();
+        rc_Mantra_TkMu_ovrl.process();
+        rc_Mantra_TkMu_endc.process();
     }
 
     // make rate plots
@@ -251,6 +432,9 @@ int main(int argc, char** argv)
     rc_TPTkMuStub.makeRatePlot();
     rc_TPTkMuStub_truemu.makeRatePlot();
     rc_TPTkMuStub_fakemu.makeRatePlot();
+    rc_Mantra_TkMu_barr.makeRatePlot();
+    rc_Mantra_TkMu_ovrl.makeRatePlot();
+    rc_Mantra_TkMu_endc.makeRatePlot();
 
     // save to file
     rc_EMTF.saveToFile(fOut);
@@ -262,4 +446,7 @@ int main(int argc, char** argv)
     rc_TPTkMuStub.saveToFile(fOut);
     rc_TPTkMuStub_truemu.saveToFile(fOut);
     rc_TPTkMuStub_fakemu.saveToFile(fOut);
+    rc_Mantra_TkMu_barr.saveToFile(fOut);
+    rc_Mantra_TkMu_ovrl.saveToFile(fOut);
+    rc_Mantra_TkMu_endc.saveToFile(fOut);
 }

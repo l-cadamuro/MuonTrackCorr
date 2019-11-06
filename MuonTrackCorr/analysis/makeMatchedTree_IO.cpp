@@ -15,6 +15,8 @@
 #include "MuTkTree.h"
 #include "Correlator.h"
 #include "Correlator_L1TTgroup_impl.h"
+#include "MantraCorr.h"
+#include "GenericDataFormat.h"
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
@@ -86,6 +88,13 @@ double to_mpio2_pio2(double x){
     return x;
 }
 
+double to_mpi_pi(double x) {
+   // put the angle in radians between -pi and pi
+   while (x >= TMath::Pi()) x -= 2.*TMath::Pi();
+   while (x < -TMath::Pi()) x += 2.*TMath::Pi();
+   return x;
+}
+
 // NB: phi must be in radians
 float deltaR (float eta1, float phi1, float eta2, float phi2)
 {
@@ -107,8 +116,10 @@ std::pair<int, int> findBest(
     std::vector<pair<float, int>> vGood_closest;
     for (uint ic = 0; ic < pts.GetSize(); ++ic)
     {
-        if ( eta_tm * etas.At(ic) < 0.0) // opposite endcap
+
+        if (std::abs(eta_tm) > 0.8 && eta_tm * etas.At(ic) < 0.0) // opposite endcap - do not apply for barrel
             continue; // reject those that are in opposite hemispheres
+
         
         // restrict to objects in the endcaps
         if (apply_fiducial_theta  && (std::abs(etas.At(ic)) < fiducial_eta_min || std::abs(etas.At(ic)) > fiducial_eta_max)){
@@ -116,15 +127,19 @@ std::pair<int, int> findBest(
             continue;
         }
 
+
         float this_phi = (phiIsInDeg ? deg_to_rad(phis.At(ic)) : phis.At(ic) );
         float this_eta = etas.At(ic);
         double dR = deltaR(eta_tm, phi_tm, this_eta, this_phi);
+
+
         if (dR > dRmax)
             continue;
         if (itoskip && std::find(itoskip->begin(), itoskip->end(), ic) != itoskip->end())
             continue;
         if (acceptmask && !(acceptmask->at(ic)))
             continue;
+
 
         vGood.push_back(make_pair(pts.At(ic), ic));
         vGood_closest.push_back(make_pair(dR, ic));
@@ -146,6 +161,7 @@ std::pair<int, int> findBest(
             results.second = vGood.size();            
         }
     }
+
     return results;
 }
 
@@ -486,6 +502,76 @@ bool single_mu_in_endcap (MuTkTree& mtkt)
     return true;
 }
 
+// dump and convert tracks to the format needed for the correlator
+std::vector<track_df> MuTkTree_to_trkvec(MuTkTree& mtkt)
+{
+    std::vector<track_df> result (*mtkt.n_L1TT_trk);
+    for (uint itrk = 0; itrk < *mtkt.n_L1TT_trk; ++itrk)
+    {
+
+        result.at(itrk).pt      = mtkt.L1TT_trk_pt.At(itrk);
+        result.at(itrk).eta     = mtkt.L1TT_trk_eta.At(itrk);
+        result.at(itrk).theta   = to_mpio2_pio2(eta_to_theta(mtkt.L1TT_trk_eta.At(itrk)));
+        result.at(itrk).phi     = mtkt.L1TT_trk_phi.At(itrk);
+        result.at(itrk).nstubs  = mtkt.L1TT_trk_nstubs.At(itrk);
+        result.at(itrk).chi2    = mtkt.L1TT_trk_chi2.At(itrk);
+        result.at(itrk).charge  = mtkt.L1TT_trk_charge.At(itrk);
+    }
+
+    return result;
+}
+
+// dump and convert muons to the format needed for the correlator
+std::vector<muon_df> MuTkTree_to_muvec(MuTkTree& mtkt, std::string system)
+{
+
+    if (system == "barrel")
+    {
+        std::vector<muon_df> result (*mtkt.n_barrel_mu);
+        for (uint imu = 0; imu < *mtkt.n_barrel_mu; ++imu)
+        {
+            result.at(imu).pt     = mtkt.barrel_mu_pt.At(imu);
+            result.at(imu).eta    = mtkt.barrel_mu_eta.At(imu);
+            result.at(imu).theta  = to_mpio2_pio2(eta_to_theta(mtkt.barrel_mu_eta.At(imu)));
+            result.at(imu).phi    = mtkt.barrel_mu_phi.At(imu);
+            result.at(imu).charge = mtkt.barrel_mu_charge.At(imu);
+        }
+        return result;
+    }
+
+    else if (system == "overlap")
+    {
+        std::vector<muon_df> result (*mtkt.n_ovrlap_mu);
+        for (uint imu = 0; imu < *mtkt.n_ovrlap_mu; ++imu)
+        {
+            result.at(imu).pt     = mtkt.ovrlap_mu_pt.At(imu);
+            result.at(imu).eta    = mtkt.ovrlap_mu_eta.At(imu);
+            result.at(imu).theta  = to_mpio2_pio2(eta_to_theta(mtkt.ovrlap_mu_eta.At(imu)));
+            result.at(imu).phi    = mtkt.ovrlap_mu_phi.At(imu);
+            result.at(imu).charge = mtkt.ovrlap_mu_charge.At(imu);
+        }
+        return result;
+    }
+
+    else if (system == "endcap")
+    {
+        std::vector<muon_df> result (*mtkt.n_EMTF_mu);
+        for (uint imu = 0; imu < *mtkt.n_EMTF_mu; ++imu)
+        {
+            result.at(imu).pt     = mtkt.EMTF_mu_pt.At(imu);
+            result.at(imu).eta    = mtkt.EMTF_mu_eta.At(imu);
+            result.at(imu).theta  = to_mpio2_pio2(eta_to_theta(mtkt.EMTF_mu_eta.At(imu)));
+            result.at(imu).phi    = deg_to_rad(mtkt.EMTF_mu_phi.At(imu));
+            result.at(imu).charge = mtkt.EMTF_mu_charge.At(imu);
+        }
+        return result;
+    }
+
+    else
+        throw std::runtime_error("MuTkTree_to_muvec : cannot understand system");
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -577,6 +663,7 @@ int main(int argc, char** argv)
         ("check-overlap" , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "check that a L1 TT is not matched to two differnt gen muons")
         ("require-single-mu-in-endcap" , po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "require to have a single muon in endcap")
         ("all-eta-muons" ,               po::value<bool>()->zero_tokens()->implicit_value(true)->default_value(false), "run on muons of all eta (default is restricted to endcap gen muons)")
+        ("mantraTrkArb"  ,               po::value<std::string>()->default_value("MinDeltaPt"),                        "Track arbitrarion type for Mantra (MinDeltaPt, MaxPt)")
     ;
     po::variables_map opts;
     try {
@@ -662,6 +749,9 @@ int main(int argc, char** argv)
     
     bool restrict_to_endcap_muons = !(opts["all-eta-muons"].as<bool>());
     cout << "... restricting to gen endcap muons only: " << std::boolalpha << restrict_to_endcap_muons << std::noboolalpha << endl;
+
+    std::string mantraTrkArb = opts["mantraTrkArb"].as<std::string>();
+    cout << "... MAnTra arbitration type: " << mantraTrkArb << endl;    
 
     /////////////////////////////////////////////////////////////////////
 
@@ -815,7 +905,21 @@ int main(int argc, char** argv)
     double ovrlap_phi;
     int    ovrlap_charge;
     int    ovrlap_mult;
-
+    //
+    double tkmu_mantra_barr_pt;
+    double tkmu_mantra_barr_eta;
+    double tkmu_mantra_barr_theta;
+    double tkmu_mantra_barr_phi;
+    
+    double tkmu_mantra_ovrl_pt;
+    double tkmu_mantra_ovrl_eta;
+    double tkmu_mantra_ovrl_theta;
+    double tkmu_mantra_ovrl_phi;
+    
+    double tkmu_mantra_endc_pt;
+    double tkmu_mantra_endc_eta;
+    double tkmu_mantra_endc_theta;
+    double tkmu_mantra_endc_phi;
 
     tOut->Branch("gen_pt",     &gen_pt);
     tOut->Branch("gen_eta",    &gen_eta);
@@ -907,6 +1011,20 @@ int main(int argc, char** argv)
     tOut->Branch("ovrlap_charge", &ovrlap_charge);
     tOut->Branch("ovrlap_mult",   &ovrlap_mult);
 
+    tOut->Branch("tkmu_mantra_barr_pt",    &tkmu_mantra_barr_pt);
+    tOut->Branch("tkmu_mantra_barr_eta",   &tkmu_mantra_barr_eta);
+    tOut->Branch("tkmu_mantra_barr_theta", &tkmu_mantra_barr_theta);
+    tOut->Branch("tkmu_mantra_barr_phi",   &tkmu_mantra_barr_phi);
+    
+    tOut->Branch("tkmu_mantra_ovrl_pt",    &tkmu_mantra_ovrl_pt);
+    tOut->Branch("tkmu_mantra_ovrl_eta",   &tkmu_mantra_ovrl_eta);
+    tOut->Branch("tkmu_mantra_ovrl_theta", &tkmu_mantra_ovrl_theta);
+    tOut->Branch("tkmu_mantra_ovrl_phi",   &tkmu_mantra_ovrl_phi);
+    
+    tOut->Branch("tkmu_mantra_endc_pt",    &tkmu_mantra_endc_pt);
+    tOut->Branch("tkmu_mantra_endc_eta",   &tkmu_mantra_endc_eta);
+    tOut->Branch("tkmu_mantra_endc_theta", &tkmu_mantra_endc_theta);
+    tOut->Branch("tkmu_mantra_endc_phi",   &tkmu_mantra_endc_phi);
 
     /////////////////////////////////////////////////////////////////////
 
@@ -956,6 +1074,40 @@ int main(int argc, char** argv)
     fIn_phi->Close();
 
     Correlator_L1TTgroup_impl corrL1TT_impl;
+
+    // create the correlators
+    auto bounds_barrel = prepare_corr_bounds  ("matching_windows_barrel/matching_windows_boundaries.root", "h_dphi_l");
+    TFile* fIn_barr_theta = TFile::Open       ("matching_windows_barrel/matching_windows_theta_q99.root");
+    TFile* fIn_barr_phi   = TFile::Open       ("matching_windows_barrel/matching_windows_phi_q99.root");
+    MantraCorr mantracorr_barrel (bounds_barrel, fIn_barr_theta, fIn_barr_phi, "mantrabarrel");
+    mantracorr_barrel.set_safety_factor(0.5, 0.5);
+    mantracorr_barrel.setArbitrationType(mantraTrkArb);
+    // mantracorr_barrel.setArbitrationType("MinDeltaPt");
+    // mantracorr_barrel.setArbitrationType("MaxPt");
+    fIn_barr_theta->Close();
+    fIn_barr_phi->Close();
+
+    auto bounds_ovrlap = prepare_corr_bounds  ("matching_windows_overlap/matching_windows_boundaries.root", "h_dphi_l");
+    TFile* fIn_ovrl_theta = TFile::Open       ("matching_windows_overlap/matching_windows_theta_q99.root");
+    TFile* fIn_ovrl_phi   = TFile::Open       ("matching_windows_overlap/matching_windows_phi_q99.root");    
+    MantraCorr mantracorr_ovrlap (bounds_ovrlap, fIn_ovrl_theta, fIn_ovrl_phi, "mantraovrlap");
+    mantracorr_ovrlap.set_safety_factor(0.5, 0.5);
+    mantracorr_ovrlap.setArbitrationType(mantraTrkArb);
+    // mantracorr_ovrlap.setArbitrationType("MinDeltaPt");
+    // mantracorr_ovrlap.setArbitrationType("MaxPt");
+    fIn_ovrl_theta->Close();
+    fIn_ovrl_phi->Close();
+
+    auto bounds_endcap = prepare_corr_bounds  ("matching_windows_endcap/matching_windows_boundaries.root", "h_dphi_l");
+    TFile* fIn_endc_theta = TFile::Open       ("matching_windows_endcap/matching_windows_theta_q99.root");
+    TFile* fIn_endc_phi   = TFile::Open       ("matching_windows_endcap/matching_windows_phi_q99.root");
+    MantraCorr mantracorr_endcap (bounds_endcap, fIn_endc_theta, fIn_endc_phi, "mantraendcap");
+    mantracorr_endcap.set_safety_factor(0.5, 0.5);
+    mantracorr_endcap.setArbitrationType(mantraTrkArb);
+    // mantracorr_endcap.setArbitrationType("MinDeltaPt");
+    // mantracorr_endcap.setArbitrationType("MaxPt");
+    fIn_endc_theta->Close();
+    fIn_endc_phi->Close();
 
     //////////////////////////////
 
@@ -1025,6 +1177,57 @@ int main(int argc, char** argv)
         sort(mycorr_mu_neg.begin(), mycorr_mu_neg.end());
 
 
+        /// Mantra Correlator in the 3 regions
+        auto barrel_muons = MuTkTree_to_muvec(mtkt, "barrel");
+        auto ovrlap_muons = MuTkTree_to_muvec(mtkt, "overlap");
+        auto endcap_muons = MuTkTree_to_muvec(mtkt, "endcap");
+        auto tracks       = MuTkTree_to_trkvec(mtkt);
+
+        auto barrel_tkmus_idx = mantracorr_barrel.find_match(tracks, barrel_muons);
+        auto ovrlap_tkmus_idx = mantracorr_ovrlap.find_match(tracks, ovrlap_muons);
+        auto endcap_tkmus_idx = mantracorr_endcap.find_match(tracks, endcap_muons);
+
+        // these objects inherit the same coordinates (pt, eta) as the matched L1TT
+        // so I can use findBest on the list of tracks, masking out all the non-matched tracks
+        // this is not optimal, but is fast as of now
+
+        std::vector<bool>  matched_tkmu_barrel_track(*mtkt.n_L1TT_trk);
+        std::vector<bool>  matched_tkmu_ovrlap_track(*mtkt.n_L1TT_trk);
+        std::vector<bool>  matched_tkmu_endcap_track(*mtkt.n_L1TT_trk);
+
+        for (uint itrk = 0; itrk < *mtkt.n_L1TT_trk; ++itrk)
+        {
+            bool found_barrel = (std::find(barrel_tkmus_idx.begin(), barrel_tkmus_idx.end(), itrk) != barrel_tkmus_idx.end());
+            bool found_ovrlap = (std::find(ovrlap_tkmus_idx.begin(), ovrlap_tkmus_idx.end(), itrk) != ovrlap_tkmus_idx.end());
+            bool found_endcap = (std::find(endcap_tkmus_idx.begin(), endcap_tkmus_idx.end(), itrk) != endcap_tkmus_idx.end());
+
+            matched_tkmu_barrel_track.at(itrk) = found_barrel;
+            matched_tkmu_ovrlap_track.at(itrk) = found_ovrlap;
+            matched_tkmu_endcap_track.at(itrk) = found_endcap;
+        }
+
+        // // cross check
+        // int matched_barr = 0;
+        // int matched_ovrl = 0;
+        // int matched_endc = 0;
+
+        // cout << "match vec sizes : " << barrel_tkmus_idx.size() << " " << ovrlap_tkmus_idx.size() << " " << endcap_tkmus_idx.size() << endl;
+        // for (uint i = 0 ; i < barrel_tkmus_idx.size(); ++i){
+        //     if(barrel_tkmus_idx.at(i) >= 0) matched_barr += 1;
+        // }
+        // for (uint i = 0 ; i < ovrlap_tkmus_idx.size(); ++i){
+        //     if(ovrlap_tkmus_idx.at(i) >= 0) matched_ovrl += 1;
+        // }
+        // for (uint i = 0 ; i < endcap_tkmus_idx.size(); ++i){
+        //     if(endcap_tkmus_idx.at(i) >= 0) matched_endc += 1;
+        // }
+
+        // cout
+        //     << " - matched_barr : " << matched_barr
+        //     << " - matched_ovrl : " << matched_ovrl
+        //     << " - matched_endc : " << matched_endc
+        //     << endl;
+
         // // good, this never happens
         // if (mycorr_mu_pos.size() + mycorr_mu_neg.size() > *(mtkt.n_EMTF_mu))
         //     cout << "I do not understand "
@@ -1081,11 +1284,15 @@ int main(int argc, char** argv)
             // auto best_emtf  = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,   mtkt.EMTF_mu_eta,   mtkt.EMTF_mu_phi,   true,  dRmax, false, false); // no eta cuts for the emtf (scattering is large)
             // auto best_emtf     = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,     mtkt.EMTF_mu_eta,     mtkt.EMTF_mu_phi,     true,  99999, false, false); // no eta cuts for the emtf (scattering is large)
             auto best_emtf     = findBest(gen_eta, gen_phi, mtkt.EMTF_mu_pt,     mtkt.EMTF_mu_eta,     mtkt.EMTF_mu_phi,     true,  99999, true, false); // apply fiducial cuts for EMTF (for eff plots in TDR, Jia Fu synch'd)
-            auto best_trk      = findBest(gen_eta, gen_phi, mtkt.L1TT_trk_pt,    mtkt.L1TT_trk_eta,    mtkt.L1TT_trk_phi,    false, dRmax, true, true, &i_trk_to_skip, &trk_pass_qual);
+            auto best_trk      = findBest(gen_eta, gen_phi, mtkt.L1TT_trk_pt,    mtkt.L1TT_trk_eta,    mtkt.L1TT_trk_phi,    false, dRmax, restrict_to_endcap_muons, true, &i_trk_to_skip, &trk_pass_qual); // apply fiducial theta cuts only if restricting to endcap muons
             auto best_tkmu     = findBest(gen_eta, gen_phi, mtkt.L1_TkMu_pt,     mtkt.L1_TkMu_eta,     mtkt.L1_TkMu_phi,     false, dRmax, true, true, nullptr, &tkmu_is_from_emtf);
-            auto best_barrel   = findBest(gen_eta, gen_phi, mtkt.barrel_mu_pt,   mtkt.barrel_mu_eta,   mtkt.barrel_mu_phi,   false, 99999, false, false);
-            auto best_ovrlap   = findBest(gen_eta, gen_phi, mtkt.ovrlap_mu_pt,   mtkt.ovrlap_mu_eta,   mtkt.ovrlap_mu_phi,   false, 99999, false, false);
+            auto best_barrel   = findBest(gen_eta, gen_phi, mtkt.barrel_mu_pt,   mtkt.barrel_mu_eta,   mtkt.barrel_mu_phi,   false, 2.0, false, false); // for barrel and overlap, a very large cone of 2.0 to avoid picking up the mu on the opposite side
+            auto best_ovrlap   = findBest(gen_eta, gen_phi, mtkt.ovrlap_mu_pt,   mtkt.ovrlap_mu_eta,   mtkt.ovrlap_mu_phi,   false, 2.0, false, false); // for barrel and overlap, a very large cone of 2.0 to avoid picking up the mu on the opposite side
             auto best_tkmustub = findBest(gen_eta, gen_phi, mtkt.L1_TkMuStub_pt, mtkt.L1_TkMuStub_eta, mtkt.L1_TkMuStub_phi, false, dRmax, true, true);
+            //
+            auto best_mantra_barr  = findBest(gen_eta, gen_phi, mtkt.L1TT_trk_pt,    mtkt.L1TT_trk_eta,    mtkt.L1TT_trk_phi,    false, dRmax, false, true, nullptr, &matched_tkmu_barrel_track);
+            auto best_mantra_ovrl  = findBest(gen_eta, gen_phi, mtkt.L1TT_trk_pt,    mtkt.L1TT_trk_eta,    mtkt.L1TT_trk_phi,    false, dRmax, false, true, nullptr, &matched_tkmu_ovrlap_track);
+            auto best_mantra_endc  = findBest(gen_eta, gen_phi, mtkt.L1TT_trk_pt,    mtkt.L1TT_trk_eta,    mtkt.L1TT_trk_phi,    false, dRmax, false, true, nullptr, &matched_tkmu_endcap_track);
 
             int ibest_emtf     = best_emtf.first;
             int ibest_trk      = best_trk.first;
@@ -1093,6 +1300,10 @@ int main(int argc, char** argv)
             int ibest_barrel   = best_barrel.first;
             int ibest_ovrlap   = best_ovrlap.first;
             int ibest_tkmustub = best_tkmustub.first;
+            //
+            int ibest_mantra_barr = best_mantra_barr.first;
+            int ibest_mantra_ovrl = best_mantra_ovrl.first;
+            int ibest_mantra_endc = best_mantra_endc.first;
 
             if (checkTToverlap) i_trk_to_skip.push_back(ibest_trk); // store it to skip at the next round on gen muons
 
@@ -1107,6 +1318,8 @@ int main(int argc, char** argv)
                 ibest_myimpltkmu = get<1>(mycorr_mu_pos.back()); // get idx of track
             if (gen_eta < 0 && mycorr_mu_neg.size() > 0)
                 ibest_myimpltkmu = get<1>(mycorr_mu_neg.back()); // get idx of track
+
+            ///////////////////
 
             int nbest_emtf    = best_emtf.second;
             int nbest_trk     = best_trk.second;
@@ -1181,16 +1394,33 @@ int main(int argc, char** argv)
             barrel_pt      = ( ibest_barrel >= 0 ? mtkt.barrel_mu_pt.At(ibest_barrel)                               : -999.);
             barrel_eta     = ( ibest_barrel >= 0 ? mtkt.barrel_mu_eta.At(ibest_barrel)                              : -999.);
             barrel_theta   = ( ibest_barrel >= 0 ? to_mpio2_pio2(eta_to_theta(mtkt.barrel_mu_eta.At(ibest_barrel))) : -999.);
-            barrel_phi     = ( ibest_barrel >= 0 ? mtkt.barrel_mu_phi.At(ibest_barrel)                              : -999.);
-            barrel_charge  = ( ibest_barrel >= 0 ? mtkt.barrel_mu_charge.At(ibest_barrel)                               : -999.);
+            barrel_phi     = ( ibest_barrel >= 0 ? to_mpi_pi(mtkt.barrel_mu_phi.At(ibest_barrel))                   : -999.);
+            barrel_charge  = ( ibest_barrel >= 0 ? mtkt.barrel_mu_charge.At(ibest_barrel)                           : -999.);
             barrel_mult    = nbest_barrel;
             
             ovrlap_pt      = ( ibest_ovrlap >= 0 ? mtkt.ovrlap_mu_pt.At(ibest_ovrlap)                               : -999.);
             ovrlap_eta     = ( ibest_ovrlap >= 0 ? mtkt.ovrlap_mu_eta.At(ibest_ovrlap)                              : -999.);
             ovrlap_theta   = ( ibest_ovrlap >= 0 ? to_mpio2_pio2(eta_to_theta(mtkt.ovrlap_mu_eta.At(ibest_ovrlap))) : -999.);
-            ovrlap_phi     = ( ibest_ovrlap >= 0 ? mtkt.ovrlap_mu_phi.At(ibest_ovrlap)                              : -999.);
-            ovrlap_charge  = ( ibest_ovrlap >= 0 ? mtkt.ovrlap_mu_charge.At(ibest_ovrlap)                               : -999.);
+            ovrlap_phi     = ( ibest_ovrlap >= 0 ? to_mpi_pi(mtkt.ovrlap_mu_phi.At(ibest_ovrlap))                   : -999.);
+            ovrlap_charge  = ( ibest_ovrlap >= 0 ? mtkt.ovrlap_mu_charge.At(ibest_ovrlap)                           : -999.);
             ovrlap_mult    = nbest_ovrlap;
+
+            /// results from Mantra
+            tkmu_mantra_barr_pt      = ( ibest_mantra_barr >= 0 ? mtkt.L1TT_trk_pt.At(ibest_mantra_barr)                                 : -999.);
+            tkmu_mantra_barr_eta     = ( ibest_mantra_barr >= 0 ? mtkt.L1TT_trk_eta.At(ibest_mantra_barr)                                : -999.);
+            tkmu_mantra_barr_theta   = ( ibest_mantra_barr >= 0 ? to_mpio2_pio2(eta_to_theta(mtkt.L1TT_trk_eta.At(ibest_mantra_barr)))   : -999.);
+            tkmu_mantra_barr_phi     = ( ibest_mantra_barr >= 0 ? mtkt.L1TT_trk_phi.At(ibest_mantra_barr)                                : -999.);
+
+            tkmu_mantra_ovrl_pt      = ( ibest_mantra_ovrl >= 0 ? mtkt.L1TT_trk_pt.At(ibest_mantra_ovrl)                                 : -999.);
+            tkmu_mantra_ovrl_eta     = ( ibest_mantra_ovrl >= 0 ? mtkt.L1TT_trk_eta.At(ibest_mantra_ovrl)                                : -999.);
+            tkmu_mantra_ovrl_theta   = ( ibest_mantra_ovrl >= 0 ? to_mpio2_pio2(eta_to_theta(mtkt.L1TT_trk_eta.At(ibest_mantra_ovrl)))   : -999.);
+            tkmu_mantra_ovrl_phi     = ( ibest_mantra_ovrl >= 0 ? mtkt.L1TT_trk_phi.At(ibest_mantra_ovrl)                                : -999.);
+
+            tkmu_mantra_endc_pt      = ( ibest_mantra_endc >= 0 ? mtkt.L1TT_trk_pt.At(ibest_mantra_endc)                                 : -999.);
+            tkmu_mantra_endc_eta     = ( ibest_mantra_endc >= 0 ? mtkt.L1TT_trk_eta.At(ibest_mantra_endc)                                : -999.);
+            tkmu_mantra_endc_theta   = ( ibest_mantra_endc >= 0 ? to_mpio2_pio2(eta_to_theta(mtkt.L1TT_trk_eta.At(ibest_mantra_endc)))   : -999.);
+            tkmu_mantra_endc_phi     = ( ibest_mantra_endc >= 0 ? mtkt.L1TT_trk_phi.At(ibest_mantra_endc)                                : -999.);
+
 
             // fill below if there is an EMTF and it has the hit in S1 / S2 / S3 / S4
             int ihitS1 = (ibest_emtf >= 0 ? mtkt.EMTF_mu_hitref1.At(ibest_emtf)                      : -1);

@@ -12,6 +12,7 @@
 ** date   : 25/12/2018
 ** brief  : encodes the lower and upper bounds to match a track to a muon
 **          to be flexible, limits are given as strings to create a TF1 function
+** update 4/11/2019: added handling of central value to improve relaxation
 */
 
 class MatchWindow
@@ -21,19 +22,25 @@ class MatchWindow
         MatchWindow(std::string name);
         ~MatchWindow();
         void SetName(std::string name) {name_ = name;}
-        void SetLower(std::string formula);
-        void SetUpper(std::string formula);
-        void SetLower(TF1* formula);
-        void SetUpper(TF1* formula);
+        
+        void SetLower   (std::string formula);
+        void SetCentral (std::string formula);
+        void SetUpper   (std::string formula);
+        
+        void SetLower   (TF1* formula);
+        void SetCentral (TF1* formula);
+        void SetUpper   (TF1* formula);
         
         // bool matches (double pt);
         double bound_low  (double pt) {return f_low->Eval(pt);}
+        double bound_cent (double pt) {return f_cent->Eval(pt);}
         double bound_high (double pt) {return f_high->Eval(pt);}
 
 
     private:
         std::string name_;
         std::shared_ptr<TF1> f_low;
+        std::shared_ptr<TF1> f_cent;
         std::shared_ptr<TF1> f_high;
 };
 
@@ -58,6 +65,12 @@ void MatchWindow::SetLower(std::string formula)
     SetLower(&f);
 }
 
+void MatchWindow::SetCentral(std::string formula)
+{
+    TF1 f ("tmp", formula.c_str(), 0, 1000);
+    SetCentral(&f);
+}
+
 void  MatchWindow::SetUpper(std::string formula)
 {
     // if (f_high)
@@ -72,6 +85,13 @@ void MatchWindow::SetLower(TF1* formula)
     if (f_low)
         throw std::runtime_error("Cannot initialize twice f_low");
     f_low = std::shared_ptr<TF1> ((TF1*) formula->Clone ((name_ + std::string("low")).c_str()));
+}
+
+void MatchWindow::SetCentral(TF1* formula)
+{
+    if (f_cent)
+        throw std::runtime_error("Cannot initialize twice f_cent");
+    f_cent = std::shared_ptr<TF1> ((TF1*) formula->Clone ((name_ + std::string("cent")).c_str()));
 }
 
 void  MatchWindow::SetUpper(TF1* formula)

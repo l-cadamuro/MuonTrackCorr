@@ -24,7 +24,8 @@ def buildLatexs(fitfunc, xstart, ystart, xoffset, yoffset, txtfont=42, txtsize=0
 
 ROOT.gStyle.SetOptStat(0)
 
-fIn = ROOT.TFile('matching_windows.root')
+# fIn = ROOT.TFile('matching_windows.root')
+fIn = ROOT.TFile('matching_windows_test.root')
 
 
 # dofit   = True
@@ -176,7 +177,8 @@ gr_window_w.SetName('gr_window_w_' + str(binN))
 nsampling = 1000
 
 if dofit:
-    h_l.Fit(fitfunc_l, 'WL 0') ### low edge looks better (esp in theta) by using a likelihood fit
+    # h_l.Fit(fitfunc_l, 'WL 0') ### low edge looks better (esp in theta) by using a likelihood fit
+    h_l.Fit(fitfunc_l, '0')
     of_l = fitfunc_l.Clone('fit_low_' + str(binN))
     h_c.Fit(fitfunc_c, '0')
     of_c = fitfunc_c.Clone('fit_cent_' + str(binN))
@@ -212,6 +214,9 @@ h_h.GetYaxis().SetTitleOffset(1.2)
 
 mmax = max(h_h.GetMaximum(), h_l.GetMaximum())
 mmin = min(h_h.GetMinimum(), h_l.GetMinimum())
+
+if mmin <= 0:
+    mmin = 1.e-6
 
 # print mmin, mmax
 
