@@ -1,4 +1,4 @@
-SUFFIX_TAG="21Ott_TDR_MC_TkMuStubv3"
+SUFFIX_TAG="6Nov2019_newMantraOvrlEndc"
 
 echo "... preparing the submission (tar and copy of CMSSW)"
 python submitOnTier3.py --xrdcp-tar-only  --tar-suffix $SUFFIX_TAG

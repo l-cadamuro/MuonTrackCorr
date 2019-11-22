@@ -1,4 +1,4 @@
-SUFFIX_TAG="21Ott_TDR_MC_TkMuStubv3_extDanieListTau3muv1_resub"
+SUFFIX_TAG="20Nov2019_newMantraOvrlEndc_MTDTDR"
 
 echo "... preparing the submission (tar and copy of CMSSW)"
 python submitOnTier3.py --xrdcp-tar-only  --tar-suffix $SUFFIX_TAG
@@ -13,4 +13,6 @@ echo ".. done, launching"
 
 # python submitOnTier3.py --filelist filelist/TauTo3Mu_TuneCP5_14TeV-pythia8_TDR_PU0.txt    --tag TauTo3Mu_TuneCP5_14TeV-pythia8_TDR_PU0_${SUFFIX_TAG}   --save-tau-3mu --all-gen-mu  --only-mu-from-tau  --njobs 25 --no-tar --no-xrdcp-tar  --tar-suffix $SUFFIX_TAG
 # python submitOnTier3.py --filelist filelist/TauTo3Mu_TuneCP5_14TeV-pythia8_TDR_PU140.txt  --tag TauTo3Mu_TuneCP5_14TeV-pythia8_TDR_PU140_${SUFFIX_TAG} --save-tau-3mu --all-gen-mu  --only-mu-from-tau  --njobs 25 --no-tar --no-xrdcp-tar  --tar-suffix $SUFFIX_TAG
-python submitOnTier3.py --filelist filelist/TauTo3Mu_TuneCP5_14TeV-pythia8_TDR_PU200.txt  --tag TauTo3Mu_TuneCP5_14TeV-pythia8_TDR_PU200_${SUFFIX_TAG} --save-tau-3mu --all-gen-mu  --only-mu-from-tau  --njobs 200 --no-tar --no-xrdcp-tar  --tar-suffix $SUFFIX_TAG
+# python submitOnTier3.py --filelist filelist/TauTo3Mu_TuneCP5_14TeV-pythia8_TDR_PU200.txt  --tag TauTo3Mu_TuneCP5_14TeV-pythia8_TDR_PU200_${SUFFIX_TAG} --save-tau-3mu --all-gen-mu  --only-mu-from-tau  --njobs 200 --no-tar --no-xrdcp-tar  --tar-suffix $SUFFIX_TAG
+###
+python submitOnTier3.py --filelist filelist/Tau3Mu_RelVal.txt  --tag TauTo3Mu_RelVal_PU200_${SUFFIX_TAG} --save-tau-3mu --all-gen-mu  --only-mu-from-tau  --njobs 200 --no-tar --no-xrdcp-tar  --tar-suffix $SUFFIX_TAG --cmsRunCfg 'analyze_MTD_MC.py'
