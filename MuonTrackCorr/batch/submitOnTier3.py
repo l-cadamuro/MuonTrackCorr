@@ -68,6 +68,7 @@ parser.add_argument('--verbose',          dest='verbose',        help='set verbo
 parser.add_argument('--all-gen-mu',       dest='allgenmu',       help='save all gen mu (not only prompt ones)', action='store_true',  default=False)
 parser.add_argument('--only-mu-from-tau', dest='mufromtauonly',  help='save only muons from tau',               action='store_true',  default=False)
 parser.add_argument('--save-tau-3mu',     dest='savetau3mu',     help='save gen taus decaying to 3mu',          action='store_true',  default=False)
+parser.add_argument('--cmsRunCfg',        dest='cmsruncfg',      help='name of the cmssw cfg to run (within test/)',  default='analyze_TDR_MC.py')
 
 args = parser.parse_args()
 
@@ -88,8 +89,10 @@ tarLFN       = cmsswWorkDir + '/' + tarName
 # cmsRunExec   = 'ntuplizer.py' # python to run
 
 cmsRunInto   = 'MuonTrackCorr/MuonTrackCorr/test' # where to run cmsRun, relative from CMSSW/src
-cmsRunExec   = 'analyze_TDR_MC.py' # python to run
+# cmsRunExec   = 'analyze_TDR_MC.py' # python to run
+cmsRunExec = args.cmsruncfg
 
+print '** INFO: will execute', cmsRunExec
 
 ##############################
 ##### Tar the folder if needed
@@ -203,7 +206,7 @@ if not args.xrdcptaronly:
         writeln(outScript, theCmd)
         writeln(outScript, 'echo "... cmsRun finished with status $?"')
         writeln(outScript, 'echo "... copying output file %s to EOS in %s"' % (outputFileName, outputEOSName))
-        writeln(outScript, 'xrdcp -s %s %s' % (outputFileName, outputEOSName)) ## no not force overwrite output in destination
+        writeln(outScript, 'xrdcp -f -s %s %s' % (outputFileName, outputEOSName)) ## **do** force overwrite output in destination -> needed in case of resubmit
         writeln(outScript, 'echo "... copy done with status $?"')
         # writeln(outScript, 'remove the input and output files if you dont want it automatically transferred when the job ends')
         # writeln(outScript, 'rm nameOfOutputFile.root')

@@ -16,13 +16,13 @@ def getLog (proto, ID, silenceWarning=False):
         if not silenceWarning: print ">>> Too many logs found for job", ID, ' (resubmitted?) , returning last'
     return logs[-1]
 
-def getExitCode(fname):
+def getExitCode(fname, text='cmsRun finished with status'):
     f = open(fname)
     code = -888
     for line in f:
-        if not '... cmsRun finished with status' in line:
+        if not '... %s' % text in line:
             continue
-        code = int(re.search('... cmsRun finished with status (\d+)', line).group(1))
+        code = int(re.search('... %s (\d+)' % text, line).group(1))
     return code
 
 ##############################
@@ -59,14 +59,17 @@ logs_txt = {ID: getLog(log_proto, ID) for ID in jobs_ID if getLog(log_proto, ID,
 
 #############################
 
-exitCodes = []
+exitCodes    = []
+exitCodes_cp = []
 ## code -999 means no log yet (unfinished?)
 ## code -888 means no CMSSW string found (unfinished? / crash?)
 for ID in jobs_ID:
     if not ID in logs_txt:
         exitCodes.append(-999)
+        exitCodes_cp.append(-999)
     else:
         exitCodes.append(getExitCode(logs_txt[ID]))
+        exitCodes_cp.append(getExitCode(logs_txt[ID], text='copy done with status'))
 
 ###########################
 missing    = []
@@ -76,10 +79,11 @@ success    = []
 
 for idx, ID in enumerate(jobs_ID):
     code = exitCodes[idx]
-    if   code == -999: missing.append((ID, code))
-    elif code == -888: unfinished.append((ID, code))
-    elif code == 0:    success.append((ID, code))
-    else:              failed.append((ID, code))
+    code_cp = exitCodes_cp[idx]
+    if   code == -999:                missing.append((ID, code, code_cp))
+    elif code == -888:                unfinished.append((ID, code, code_cp))
+    elif code == 0 and code_cp == 0:  success.append((ID, code, code_cp))
+    else:                             failed.append((ID, code, code_cp))
 
 # print exitCodes
 print "\n***********************************************************"
@@ -92,9 +96,9 @@ print "***********************************************************"
 
 if not args.short:
    print '\n'
-   print '** Failed jobs ID + CODE, logfile'
+   print '** Failed jobs ID + CODE + xrdcp code, logfile'
    for val in failed:
-       print '-', val[0], '+', val[1], ' , ', logs_txt[val[0]]
+       print '-', val[0], '+', val[1], ' + ', val[2], ' , ', logs_txt[val[0]]
    print '** Unfinished jobs ID + CODE, logfile'
    for val in unfinished:
        print '-', val[0], '+', val[1], ' , ', logs_txt[val[0]]
