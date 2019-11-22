@@ -105,12 +105,14 @@ class Ntuplizer : public edm::EDAnalyzer {
         std::vector<float> barrel_mu_eta_;
         std::vector<float> barrel_mu_phi_;
         std::vector<int>   barrel_mu_charge_;
+        std::vector<int>   barrel_mu_qual_;
 
         unsigned int n_ovrlap_mu_;
         std::vector<float> ovrlap_mu_pt_;
         std::vector<float> ovrlap_mu_eta_;
         std::vector<float> ovrlap_mu_phi_;
         std::vector<int>   ovrlap_mu_charge_;
+        std::vector<int>   ovrlap_mu_qual_;
 
         // hits of a EMTF track
         // std::vector<int>   EMTF_mu_h1_type_;
@@ -241,12 +243,14 @@ void Ntuplizer::initialize()
     barrel_mu_eta_.clear();
     barrel_mu_phi_.clear();
     barrel_mu_charge_.clear();
+    barrel_mu_qual_.clear();
 
     n_ovrlap_mu_ = 0;
     ovrlap_mu_pt_.clear();
     ovrlap_mu_eta_.clear();
     ovrlap_mu_phi_.clear();
     ovrlap_mu_charge_.clear();
+    ovrlap_mu_qual_.clear();
 
 
     n_L1TT_trk_ = 0;
@@ -395,12 +399,14 @@ void Ntuplizer::beginJob()
     tree_->Branch("barrel_mu_eta",    &barrel_mu_eta_);
     tree_->Branch("barrel_mu_phi",    &barrel_mu_phi_);
     tree_->Branch("barrel_mu_charge", &barrel_mu_charge_);
+    tree_->Branch("barrel_mu_qual",   &barrel_mu_qual_);
 
     tree_->Branch("n_ovrlap_mu",      &n_ovrlap_mu_);
     tree_->Branch("ovrlap_mu_pt",     &ovrlap_mu_pt_);
     tree_->Branch("ovrlap_mu_eta",    &ovrlap_mu_eta_);
     tree_->Branch("ovrlap_mu_phi",    &ovrlap_mu_phi_);
     tree_->Branch("ovrlap_mu_charge", &ovrlap_mu_charge_);
+    tree_->Branch("ovrlap_mu_qual",   &ovrlap_mu_qual_);
 
     // tree_->Branch("EMTF_mu_e", &EMTF_mu_e_);
 
@@ -941,6 +947,7 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         int hwsign = l1mubarrit->hwSign();
         int charge = (hwsign == 0 ? 1 : -1); // charge sign bit (charge = (-1)^(sign))
         barrel_mu_charge_.push_back(charge);
+        barrel_mu_qual_.push_back(l1mubarrit->hwQual());
     }
 
     // overlap muons
@@ -955,6 +962,7 @@ void Ntuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         int hwsign = l1muovrlit->hwSign();
         int charge =  (hwsign == 0 ? 1 : -1); // charge sign bit (charge = (-1)^(sign))
         ovrlap_mu_charge_.push_back(charge);
+        ovrlap_mu_qual_.push_back(l1muovrlit->hwQual());
     }
 
     /// mu + trks
