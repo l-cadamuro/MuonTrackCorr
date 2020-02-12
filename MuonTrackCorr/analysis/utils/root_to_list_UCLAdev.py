@@ -41,7 +41,8 @@ def quantize(n, scale):
 
 # trk_obj  = ['L1TT_trk_pt', 'L1TT_trk_eta', 'L1TT_trk_phi', 'L1TT_trk_charge', 'L1TT_trk_chi2', 'L1TT_trk_nstubs']
 trk_obj  = ['L1TT_trk_pt', 'L1TT_trk_eta', 'L1TT_trk_phi', 'L1TT_trk_charge', 'L1TT_trk_chi2']
-muon_obj = ['EMTF_mu_pt',  'EMTF_mu_eta', 'EMTF_mu_phi', 'EMTF_mu_charge']
+# muon_obj = ['EMTF_mu_pt',  'EMTF_mu_eta', 'EMTF_mu_phi', 'EMTF_mu_charge']
+muon_obj = ['L1_TkMu_pt',  'L1_TkMu_eta', 'L1_TkMu_phi', 'L1_TkMu_charge']
 # muon_obj = ['EMTF_mu_pt', 'EMTF_mu_theta', 'EMTF_mu_phi', 'EMTF_mu_charge']
 
 ## functions that will be applied on the value of the number extracted above
@@ -65,6 +66,12 @@ lsb_nbits = {
     'EMTF_mu_eta'     : (2.*pi/2**9, 9),  
     'EMTF_mu_phi'     : (2.*pi/2**9, 9),  
     'EMTF_mu_charge'  : (1, 1),
+    ###
+    'L1_TkMu_pt'      : (0.25,      15),
+    'L1_TkMu_eta'     : (2.*pi/2**9, 9),  
+    'L1_TkMu_phi'     : (2.*pi/2**9, 9),  
+    'L1_TkMu_charge'  : (1, 1),
+
 }
 
 
@@ -73,14 +80,14 @@ print '... starting'
 # values = root_numpy.root2array('root://cmseos.fnal.gov//store/user/lcadamur/L1MuTrks_ntuples/SingleMu_FlatPt-2to100_L1TPU200_12Ott_DWcorr_CMSSWdefaultNoRelax/output/ntuple_0.root',
 #         'Ntuplizer/MuonTrackTree')
 
-values    = uproot.open('singleMu_200PU.root')['Ntuplizer/MuonTrackTree']
+values    = uproot.open('ntuple_singleMu_200.root')['Ntuplizer/MuonTrackTree']
 print '... input opened'
 
 ofilename = 'mu_track_infolist.txt'
 fout = open(ofilename, 'w')
 
-nEv = 100
-if nEv > len(values):
+nEv = -1
+if nEv > len(values) and nEv > 0:
     print "... you requeste", nEv, "events but input tree only has", len(values), "values"
     nEv = len(values)
 
@@ -92,15 +99,26 @@ ntmt         = 18 # number of tmt periods over which a track gets sent
 ntrk = ntrk_per_clk * ntmt
 nmu  = 18 ## 18 muons
 
+debug = False
+
 #############################################################################
 
 
 # n_trk  = values[iEv]['n_L1TT_trk']
 # n_muon = values[iEv]['n_EMTF_mu']
 
-dataset   = values.pandas.df(entrystop = nEv)
+# dataset   = values.pandas.df(entrystop = nEv)
+dataset   = values.pandas.df()
+
+if nEv < 0:
+    nEv = len(dataset)
+
+print '... will generate patterns for ', nEv, 'events'
 
 for iEv in range(0, nEv):
+
+    if iEv % 500 == 0:
+        print "...", iEv, '/', nEv
 
     ## dicts with key -> all tracks_prop
     trk_vals = {field : dataset[field][iEv] for field in trk_obj}
@@ -126,7 +144,7 @@ for iEv in range(0, nEv):
         this_mu = list(null_mu)
         if imu < n_mu_read:
             for ifield, field in enumerate(muon_obj):
-                
+
                 v = mu_vals[field][imu]
                 if field in transformations_to_apply:
                     v = transformations_to_apply[field](v)
@@ -137,6 +155,10 @@ for iEv in range(0, nEv):
                 v = int(v)
 
                 this_mu[ifield] = v
+
+            if debug:
+                print ".... EV nr ", iEv, ' imu : ', imu, 'vals = ', this_mu
+        
         mus_to_write.append(this_mu)
 
     for itrk in range(0, ntrk):
